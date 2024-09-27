@@ -1,9 +1,13 @@
 {
+    "functions": {
+        "api/server.js": {
+            "runtime": "nodejs18.x"
+        }
+    },
     "rewrites": [
-      {
-        "source": "/ics/:room",
-        "destination": "/server.js"
-      }
+        {
+            "source": "/ics/:room",
+            "destination": "/api/server.js"
+        }
     ]
-  }
-  
+}
