@@ -25,23 +25,6 @@
       margin-right: 10px;
     }
 
-    #reservationButton {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-family: 'Arial', sans-serif;
-      transition: background-color 0.3s;
-      margin-left: 140px;
-      margin-top: 15px;
-    }
-
-    #reservationButton:hover {
-      background-color: #0056b3;
-    }
-
     h1,
     h2,
     h3 {
@@ -60,7 +43,40 @@
     }
 
     #calendar {
-      margin-top: 20px;
+      height: calc(100vh - 100px);
+      /* Ajusta según el espacio que quieras dejar para el header/footer */
+      /* Alternativamente, puedes usar */
+      /* height: 100vh; */
+    }
+
+    /* Estilos para hacer que el calendario ocupe toda la altura en móviles */
+    @media (max-width: 768px) {
+      #calendar {
+        height: 100vh;
+        /* Ocupar toda la altura de la ventana */
+      }
+
+      #reservationButton {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Arial', sans-serif;
+        transition: background-color 0.3s;
+        margin-left: 140px;
+        margin-top: 15px;
+      }
+
+      #reservationButton:hover {
+        background-color: #0056b3;
+      }
+    }
+
+    .fc-footer {
+      margin-top: 0;
+      /* Elimina el margen superior */
     }
 
     .fc-event {
@@ -90,6 +106,7 @@
       text-overflow: ellipsis;
     }
   </style>
+
 </head>
 
 <body>
@@ -269,7 +286,7 @@
 
       loadICS(Object.keys(icsUrls)[0]);
     });
- 
+
     function loadICS(roomName) {
       fetch(`/ics/${roomName}`)
         .then(response => {
@@ -279,7 +296,7 @@
           return response.text();
         })
         .then(data => {
-          parseICS(data);  
+          parseICS(data);
         })
         .catch(error => {
           console.error('Hubo un problema con la carga del archivo .ics:', error);
@@ -344,6 +361,5 @@
     }
   </script>
 </body>
-
 
 </html>
