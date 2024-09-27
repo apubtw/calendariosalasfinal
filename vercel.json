@@ -1,13 +1,19 @@
 {
-    "functions": {
-        "api/server.js": {
-            "runtime": "nodejs18.x"
-        }
-    },
-    "rewrites": [
+    "version": 2,
+    "builds": [
         {
-            "source": "/ics/:room",
-            "destination": "/api/server.js"
+            "src": "server.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "server.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "server.js"
         }
     ]
 }
