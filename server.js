@@ -1,11 +1,12 @@
 const express = require('express');
 const path = require('path');
-const axios = require ('axios');
+const axios = require('axios');
+const morgan = require('morgan'); // Logging middleware
 
 const app = express();
 const port = 3000;
 
-
+// Define your ICS URLs mapping
 const icsUrls = {
     "FHGCP DECANATO SALA CONSEJO FACULTAD": "http://outlook.office365.com/owa/calendar/f03c42313f964c819b4aecd10a62f81f@uc.cl/46e74d9c80a945e384f3971b525ea76e11052745610678742020/calendar.ics",
     "FHGCP DECANATO SALA REUNIONES": "http://outlook.office365.com/owa/calendar/0d1da151aef7420190fb315b6d4dfadc@uc.cl/7317cf9f67ea4dd8b91c5daa82d595867171139558961955839/calendar.ics",
@@ -39,16 +40,16 @@ const icsUrls = {
     "FHGCP SIMULACION ICP": "http://outlook.office365.com/owa/calendar/d3613bdc983349eb8d23977a35f0cd9a@uc.cl/2dd4884b46184544a0c20b85bc0f741f10623902703247629494/calendar.ics"
 };
 
+
+app.use(morgan('combined')); // Use morgan for logging
 app.use(express.static(path.join(__dirname, 'public')));
 
- 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/ics/:room', async (req, res) => {
-    const room = req.params.room;
-
+    const room = decodeURIComponent(req.params.room); // Decode the room name
     if (!icsUrls[room]) {
         return res.status(404).send('URL no encontrada');
     }
@@ -58,11 +59,11 @@ app.get('/ics/:room', async (req, res) => {
         res.set('Content-Type', 'text/calendar');
         res.send(response.data);
     } catch (error) {
+        console.error('Error fetching ICS file:', error); // Log error details
         res.status(500).send('Error al obtener el archivo .ics');
     }
 });
 
- 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
