@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/ics/:room",
+        "destination": "/server.js"
+      }
+    ]
+  }
+  
