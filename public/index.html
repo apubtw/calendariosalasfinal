@@ -44,16 +44,28 @@
 
     #calendar {
       height: calc(100vh - 100px);
-      /* Ajusta según el espacio que quieras dejar para el header/footeasfasfsafasfasr */
-      /* Alternativamente, puedes usar */
-      /* height: 100vh; */
     }
+    #reservationButton {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Arial', sans-serif;
+        transition: background-color 0.3s;
+        margin-left: 140px;
+        margin-top: 15px;
+      }
+
+      #reservationButton:hover {
+        background-color: #0056b3;
+      }
 
     /* Estilos para hacer que el calendario ocupe toda la altura en móviles */
     @media (max-width: 768px) {
       #calendar {
         height: 100vh;
-        /* Ocupar toda la altura de la ventana */
       }
 
       #reservationButton {
