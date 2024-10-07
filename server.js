@@ -10,7 +10,7 @@ const port = 3000;
 const icsUrls = {
     "FHGCP DECANATO SALA CONSEJO FACULTAD": "http://outlook.office365.com/owa/calendar/f03c42313f964c819b4aecd10a62f81f@uc.cl/46e74d9c80a945e384f3971b525ea76e11052745610678742020/calendar.ics",
     "FHGCP DECANATO SALA REUNIONES": "http://outlook.office365.com/owa/calendar/0d1da151aef7420190fb315b6d4dfadc@uc.cl/7317cf9f67ea4dd8b91c5daa82d595867171139558961955839/calendar.ics",
-    "FHGCP SALA USOS MÚLTIPLES": "http://outlook.office365.com/owa/calendar/00a05e5068504048b8219caa353bb694@uc.cl/e30ae1041cf641ae91784c7b661367306773761822066238338/calendar.ics",
+    "FHGCP SALA USOS MULTIPLES": "http://outlook.office365.com/owa/calendar/00a05e5068504048b8219caa353bb694@uc.cl/e30ae1041cf641ae91784c7b661367306773761822066238338/calendar.ics",
     "FHGCP DECANATO AUDITORIO": "http://outlook.office365.com/owa/calendar/e857cbdab6ea47749bc06e0adc9dbb73@uc.cl/05c7b41e95694645bfda2c3b084ade8014595092356990759330/calendar.ics",
     "FHGCP A 7": "http://outlook.office365.com/owa/calendar/c2a170fe59e5429cbaae8abf19d63f1f@uc.cl/4f4848a287944d0d95a8fe98bddc868e14502745448413807140/calendar.ics",
     "FHGCP SEMINARIO FACULTAD": "http://outlook.office365.com/owa/calendar/cb9d40caf77c43629fdb9f7cb9249afb@uc.cl/2f99deb939944c9a9de027ccc2e821497528731868425315838/calendar.ics",
