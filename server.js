@@ -24,7 +24,6 @@ const icsUrls = {
     "FHGCP HUMANIDADES 3 👤4": "http://outlook.office365.com/owa/calendar/854f687d101745b481c3892f5ff6f2d1@uc.cl/38f78a1f13d1434e8eb91d645dd4547810658958581129542550/calendar.ics",
     "FHGCP HUMANIDADES 4 👤4": "http://outlook.office365.com/owa/calendar/bc6e41c921704d3293d6ddcc403062cc@uc.cl/64b37ec71d7148859fc10832f63b219c1386908969546599371/calendar.ics",
     "FHGCP SALA CONSEJO HISTORIA 👤12": "http://outlook.office365.com/owa/calendar/ec65ead6c8564a17ac3ea480542fe5fa@uc.cl/0318f94758864b32a68ac0567319535b8003472245692917270/calendar.ics",
-    "FHGCP B1": "http://outlook.office365.com/owa/calendar/1570bd351a0f4641a51f5762eb4ecfcb@uc.cl/a25a19363e2e474a9047f2fb8018ba0411043444115954974137/calendar.ics",
     "FHGCP SALA DE CONSEJO INSTITUTO DE GEOGRAFIA 👤8": "http://outlook.office365.com/owa/calendar/4b0b3a0a1fc6489b87524b9b7ed9c687@uc.cl/8d66e4c06f5e4b4692af362963a98da03628685577008031525/calendar.ics",
     "FHGCP TERRAZA 👤50": "http://outlook.office365.com/owa/calendar/3033c0791e414b4fa60cc29a059e4037@uc.cl/988ff7fb55c14d42b29b01c0860b7c0e3542970083574507192/calendar.ics",
     "FHGCP DOCTORADO GEOGRAFIA 👤10": "http://outlook.office365.com/owa/calendar/0253785e99494b18859b3cd9020aa93a@uc.cl/643ef88f85324b359beb359e913e26c66644004865990384362/calendar.ics",
