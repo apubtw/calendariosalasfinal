@@ -33,7 +33,7 @@ const icsUrls = {
     "FHGCP LABORATORIO DE GEOMATICA 👤14": "http://outlook.office365.com/owa/calendar/046148a2e92a42f9a6b2d31973ec711f@uc.cl/b8812806946548e79cc1ccdda6926e3c9063704853347367516/calendar.ics",
     "FHGCP SALA DE CONSEJO INSTITUTO DE HISTORIA 👤12": "http://outlook.office365.com/owa/calendar/773017c378cd4f11b8989213c2bc4de1@uc.cl/fb818c8c339a4b20ad4ead0dd1f4b1ad11313192983062406126/calendar.ics",
     "FHGCP LABORATORIO HISTORIA DIGITAL (BLOQUEADA)": "http://outlook.office365.com/owa/calendar/0f52822f5d1443ca9da46abe398d3cad@uc.cl/bd3e7f72cc844f38a9cc0d517cd0660616195049527368204434/calendar.ics",
-    "FHGCP SALA SEMINARIO HISTORIA": "http://outlook.office365.com/owa/calendar/266599e201af412ea7dae37017d005d9@uc.cl/192bfa5db8de4aa2ac7349d5f0c8b18715751757247432996149/calendar.ics",
+    "FHGCP SALA POSTGRADO HISTORIA 👤10": "http://outlook.office365.com/owa/calendar/266599e201af412ea7dae37017d005d9@uc.cl/192bfa5db8de4aa2ac7349d5f0c8b18715751757247432996149/calendar.ics",
     "FHGCP SALA DE CONSEJO INSTITUTO CIENCIA POLITICA 👤12": "http://outlook.office365.com/owa/calendar/4bd6e6a4752445929d0b62430fa599a0@uc.cl/f9c7109bea984bf1979b1e714b5ea0585302724608420494240/calendar.ics",
     "FHGCP DOCTORADO ICP 👤12": "http://outlook.office365.com/owa/calendar/22c286212fae46b994a3ce3a8de2065c@uc.cl/a5bcf5a0d1a44f138c0ebcf10e01b75d5615022796294095401/calendar.ics",
     "FHGCP SIMULACION ICP (BLOQUEADA)": "http://outlook.office365.com/owa/calendar/d3613bdc983349eb8d23977a35f0cd9a@uc.cl/2dd4884b46184544a0c20b85bc0f741f10623902703247629494/calendar.ics"
