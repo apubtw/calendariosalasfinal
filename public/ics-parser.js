@@ -7,8 +7,10 @@ function parseICS(data) {
         if (line.startsWith('BEGIN:VEVENT')) {
             currentEvent = {};
         } else if (line.startsWith('END:VEVENT')) {
-            events.push(currentEvent);
-            currentEvent = null;
+            if (currentEvent) {
+                processRecurringEvents(currentEvent, events);
+                currentEvent = null;
+            }
         } else if (currentEvent) {
             const [key, value] = line.split(':');
             if (key && value) {
@@ -21,8 +23,33 @@ function parseICS(data) {
             }
         }
     });
-
+    processRecurringEvents(events)
     displayEvents(events);
+}
+
+function processRecurringEvents(event, events) {
+    const { rrulestr } = require('rrule');
+
+    if (event['RRULE']) {
+        const rule = rrulestr(event['RRULE'], { forces: true });
+        const eventDates = rule.all(); // Obtiene todas las instancias del evento
+
+        const startDate = new Date(event['DTSTART'].replace(/TZID=[^:]+:/, ''));
+        const duration = (new Date(event['DTEND'].replace(/TZID=[^:]+:/, '')) - startDate) || 60 * 60 * 1000; // Duración por defecto 1 hora
+
+        // Genera nuevos eventos para cada instancia y los agrega a la lista
+        eventDates.forEach(date => {
+            events.push({
+                'SUMMARY': event['SUMMARY'],
+                'DTSTART': date.toISOString(), // Convierte a formato ISO
+                'DTEND': new Date(date.getTime() + duration).toISOString(), // Agregar duración
+                'LOCATION': event['LOCATION'],
+            });
+        });
+    } else {
+        // Si no es recurrente, simplemente se agrega el evento
+        events.push(event);
+    }
 }
 
 function displayEvents(events) {
@@ -48,12 +75,7 @@ function displayEvents(events) {
 
 function formatDate(icsDate) {
     if (!icsDate) return 'Fecha no disponible';
-    const dateStr = icsDate.replace(/^TZID=[^:]+:/, '');
-    const year = dateStr.substring(0, 4);
-    const month = dateStr.substring(4, 6);
-    const day = dateStr.substring(6, 8);
-    const hour = dateStr.substring(9, 11);
-    const minute = dateStr.substring(11, 13);
-
-    return `${day}/${month}/${year} ${hour}:${minute}`;
+    const date = new Date(icsDate);
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+    return date.toLocaleString('es-ES', options).replace(',', ''); // Cambiar al formato español
 }

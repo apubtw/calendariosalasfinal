@@ -1,9 +1,11 @@
 {
   "dependencies": {
+    "@fullcalendar/rrule": "^6.1.15",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "morgan": "^1.10.0",
-    "nodejs": "^0.0.0"
+    "nodejs": "^0.0.0",
+    "rrule": "^2.8.1"
   }
 }
