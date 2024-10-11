@@ -8,10 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/web-component@6.1.15/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.4.0/ical.min.js"></script>
-  <title>
-    Calendario de Salas
-  </title>
+  <title>Calendario de Salas</title>
   <style>
+    /* Estilos generales */
     .fc-toolbar {
       display: flex;
       justify-content: space-between;
@@ -49,13 +48,9 @@
       border: 1px solid #2196f3;
       position: relative;
       overflow-y: hidden;
-      /* Cambiado a hidden para que no haya desplazamiento vertical */
       overflow-x: hidden;
-      /* Asegura que no haya desplazamiento horizontal */
       white-space: normal;
-      /* Permite que el texto se envuelva a la siguiente línea */
       word-wrap: break-word;
-      /* Ajusta las palabras largas para que se dividan si es necesario */
     }
 
     select {
@@ -88,73 +83,61 @@
       background-color: #0056b3;
     }
 
-    /* Estilos para hacer que el calendario ocupe toda la altura en móviles */
-    @media (max-width: 768px) {
-      #calendar {
-        height: 100vh;
-      }
-
-      #reservationButton {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-family: "Arial", sans-serif;
-        transition: background-color 0.3s;
-        margin-left: 140px;
-        margin-top: 15px;
-      }
-
-      #reservationButton:hover {
-        background-color: #0056b3;
-      }
+    /* Estilos para el modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
     }
 
-    .fc-footer {
-      margin-top: 0;
-      /* Elimina el margen superior */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
     }
 
-    .fc-event {
-      padding: 5px;
-      border-radius: 5px;
-      background-color: #e3f2fd;
-      border: 1px solid #2196f3;
-      position: relative;
-      overflow-y: hidden;
-      /* Cambiado a hidden para que no haya desplazamiento vertical */
-      overflow-x: hidden;
-      /* Asegura que no haya desplazamiento horizontal */
-      white-space: normal;
-      /* Permite que el texto se envuelva a la siguiente línea */
-      word-wrap: break-word;
-      /* Ajusta las palabras largas para que se dividan si es necesario */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
     }
 
-    .fc-event::before {
-      content: "";
-      position: absolute;
-      left: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
-      background-color: #2196f3;
-      border-radius: 50%;
-    }
-
-    .fc-event-title {
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
   <div id="calendar"></div>
+
+  <!-- Modal para mostrar detalles del evento -->
+  <div id="eventModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Detalles del Evento</h2>
+      <p><strong>Inicio:</strong> <span id="modalStart"></span></p>
+      <p><strong>Fin:</strong> <span id="modalEnd"></span></p>
+      <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
+      <p><strong>Ubicación:</strong> <span id="modalLocation"></span></p>
+      <p><strong>Requerimientos:</strong> <span id="modalRequirements"></span></p>
+    </div>
+  </div>
 
   <script src="ics-parser.js"></script>
   <script>
@@ -273,8 +256,11 @@
       "FHGCP_TERRAZA_👤50":
         "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-TERRAZA@uc.cl&location=FHGCP-TERRAZA@uc.cl",
     };
+
     document.addEventListener("DOMContentLoaded", function () {
       const calendarEl = document.getElementById("calendar");
+      const modal = document.getElementById("eventModal");
+      const modalClose = document.querySelector(".close");
 
       function isMobileDevice() {
         return /Mobi|Android/i.test(navigator.userAgent);
@@ -318,6 +304,22 @@
           week: "Sem",
           day: "Día",
         },
+        eventClick: function (info) {
+          // Mostrar el modal con la información del evento
+          document.getElementById("modalTitle").textContent = info.event.title;
+          document.getElementById("modalStart").textContent = info.event.start.toLocaleString("es-ES", {
+            dateStyle: "full",
+            timeStyle: "short",
+          });
+          document.getElementById("modalEnd").textContent = info.event.end
+            ? info.event.end.toLocaleString("es-ES", { dateStyle: "full", timeStyle: "short" })
+            : "N/A";
+          document.getElementById("modalDescription").textContent = info.event.extendedProps.description || "Sin descripción";
+          document.getElementById("modalLocation").textContent = info.event.extendedProps.location || "Sin ubicación";
+          document.getElementById("modalRequirements").textContent = info.event.extendedProps.requerimientos || "Sin requerimientos";
+
+          modal.style.display = "block"; // Mostrar el modal
+        },
         eventContent: function (arg) {
           const date = arg.event.start;
           const dateEnd = arg.event.end;
@@ -332,15 +334,13 @@
 
           return {
             html: `<br>${formattedTime} - ${formattedTimeEnd}<br>${arg.event.title}`,
-          }
-        }
+          };
+        },
       });
 
       calendar.render();
 
-      const toolbar = document.querySelector(
-        ".fc-toolbar-chunk:nth-child(3)"
-      );
+      const toolbar = document.querySelector(".fc-toolbar-chunk:nth-child(3)");
 
       const select = document.createElement("select");
       select.id = "calendarSelector";
@@ -353,17 +353,12 @@
       reservationButton.textContent = "RESERVA";
       reservationButton.onclick = function () {
         const selectedCalendar = select.value;
-        // Reemplaza espacios por guiones bajos
-        const formattedCalendar = selectedCalendar
-          .replace(/ /g, "_")
-          .toUpperCase();
+        const formattedCalendar = selectedCalendar.replace(/ /g, "_").toUpperCase();
 
         if (reservationLinks[formattedCalendar]) {
           window.open(reservationLinks[formattedCalendar], "_blank");
         } else {
-          console.log(
-            "No se encontró un enlace de reserva para el calendario seleccionado."
-          );
+          console.log("No se encontró un enlace de reserva para el calendario seleccionado.");
         }
       };
 
@@ -386,6 +381,18 @@
       toolbar.appendChild(reservationButton);
 
       loadICS(Object.keys(icsUrls)[0]);
+
+      // Cerrar el modal al hacer clic en la "X"
+      modalClose.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      // Cerrar el modal al hacer clic fuera de él
+      window.onclick = function (event) {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
     });
 
     function loadICS(roomName) {
@@ -400,32 +407,28 @@
           parseICS(data);
         })
         .catch((error) => {
-          console.error(
-            "Hubo un problema con la carga del archivo .ics:",
-            error
-          );
+          console.error("Hubo un problema con la carga del archivo .ics:", error);
         });
     }
-
     function parseICS(data) {
       const events = [];
       const lines = data.split(/\r?\n/);
       let currentEvent = null;
+      let previousKey = null;
 
       lines.forEach((line) => {
-        if (line.startsWith("BEGIN:VEVENT")) {
+        // Si la línea comienza con un espacio, es una continuación de la línea anterior
+        if (line.startsWith(" ") && currentEvent && previousKey) {
+          currentEvent[previousKey] += line.trim(); // Une la línea anterior con la actual, eliminando espacios adicionales
+        } else if (line.startsWith("BEGIN:VEVENT")) {
           currentEvent = {};
         } else if (line.startsWith("END:VEVENT")) {
-          if (
-            currentEvent &&
-            currentEvent["DTSTART"] &&
-            currentEvent["DTEND"]
-          ) {
+          if (currentEvent && currentEvent["DTSTART"] && currentEvent["DTEND"]) {
             if (currentEvent["RRULE"]) {
               const recurrenceEvents = generateRecurrenceEvents(currentEvent);
-              events.push(...recurrenceEvents); // Añade todos los eventos generados a partir de la recurrencia
+              events.push(...recurrenceEvents);
             } else {
-              events.push(currentEvent); // Añade un evento único si no es recurrente
+              events.push(currentEvent);
             }
           }
           currentEvent = null;
@@ -434,9 +437,11 @@
           if (key && value) {
             if (key.includes("TZID")) {
               const keyParts = key.split(";");
-              currentEvent[keyParts[0]] = value; // Guarda la fecha sin el TZID para manejarlo por separado
+              currentEvent[keyParts[0]] = value;
+              previousKey = keyParts[0]; // Guardar la clave para detectar continuaciones
             } else {
               currentEvent[key] = value;
+              previousKey = key; // Guardar la clave para detectar continuaciones
             }
           }
         }
@@ -444,74 +449,60 @@
 
       displayEvents(events);
     }
+s
 
-    function generateRecurrenceEvents(event) {
-      const recurrenceEvents = [];
-      const rrule = event["RRULE"];
-      const startDate = formatICSDate(event["DTSTART"]);
-      const endDate = formatICSDate(event["DTEND"]);
+    function displayEvents(events) {
+      calendar.removeAllEvents();
+      events.forEach((event) => {
+        const start = formatICSDate(event["DTSTART"]);
+        const end = formatICSDate(event["DTEND"]);
+        const description = event["SUMMARY"] || "Sin descripción";
+        const location = event["LOCATION"] || "Sin ubicación";
 
-      const ruleParts = rrule.split(";");
-      let frequency = "DAILY",
-        interval = 1,
-        untilDate = null;
+        // Limpiar los requerimientos
+        const requerimientos = event["DESCRIPTION"]
+          ? cleanRequerimientos(event["DESCRIPTION"])
+          : "Sin requerimientos";
 
-      ruleParts.forEach((part) => {
-        const [key, value] = part.split("=");
-        if (key === "FREQ") frequency = value;
-        if (key === "UNTIL") untilDate = formatICSDate(value);
-        if (key === "INTERVAL") interval = parseInt(value);
-      });
-
-      let currentDate = new Date(startDate);
-      const until = untilDate
-        ? new Date(untilDate)
-        : new Date(currentDate.getFullYear() + 1, 0, 1);
-
-      while (currentDate <= until) {
-        const newEvent = {
-          DTSTART: currentDate.toISOString(),
-          DTEND: new Date(
-            currentDate.getTime() + (endDate - startDate)
-          ).toISOString(),
-          SUMMARY: event["SUMMARY"],
-          LOCATION: event["LOCATION"],
-        };
-        recurrenceEvents.push(newEvent);
-
-        // Avanza a la siguiente fecha basándose en la frecuencia e intervalo
-        switch (frequency) {
-          case "DAILY":
-            currentDate.setDate(currentDate.getDate() + interval);
-            break;
-          case "WEEKLY":
-            currentDate.setDate(currentDate.getDate() + 7 * interval);
-            break;
-          case "MONTHLY":
-            currentDate.setMonth(currentDate.getMonth() + interval);
-            break;
-          case "YEARLY":
-            currentDate.setFullYear(currentDate.getFullYear() + interval);
-            break;
+        if (start && end) {
+          calendar.addEvent({
+            title: description,
+            start: start,
+            end: end,
+            extendedProps: {
+              description: description,
+              location: location,
+              requerimientos: requerimientos
+            },
+          });
+        } else {
+          console.error("Error al agregar el evento: Fechas no válidas", event);
         }
-      }
-
-      return recurrenceEvents;
+      });
     }
 
+    function cleanRequerimientos(text) {
+      return text
+        .replace(/\\,/g, ",")       // Reemplazar '\,' por ','
+        .replace(/\\n/g, " ")       // Reemplazar '\n' por un espacio
+        .replace(/\n/g, " ")        // Reemplazar cualquier salto de línea adicional
+        .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "") // Eliminar el texto no deseado
+        .replace(/contestar este mail fuera de horario laboral./g, "") // Eliminar el texto no deseado
+        .replace(/No sienta la obligación de/g, "") // Eliminar el texto no deseado
+        .trim();                    // Eliminar espacios en blanco al principio y al final
+    }
+
+
     function formatICSDate(dateStr) {
-      // Si la fecha ya está en formato ISO (por ejemplo, '2024-12-04T16:30:00.000Z')
       if (dateStr.includes("-")) {
-        return new Date(dateStr); // Devuelve la fecha como un objeto de JavaScript
+        return new Date(dateStr);
       }
 
-      // Manejar fechas en formato ICS (por ejemplo, '20241113T200000')
       const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
       if (!dateMatch) {
         return null;
       }
 
-      // Convertir el formato de fecha ICS a un formato que JavaScript pueda entender
       const dateFormatted =
         dateStr.slice(0, 4) +
         "-" +
@@ -525,33 +516,6 @@
         ":" +
         dateStr.slice(13, 15);
       return new Date(dateFormatted);
-    }
-
-    function displayEvents(events) {
-      calendar.removeAllEvents(); // Limpia todos los eventos previos
-      events.forEach((event) => {
-        const start = formatICSDate(event["DTSTART"]); // Convierte la fecha de inicio
-        const end = formatICSDate(event["DTEND"]); // Convierte la fecha de fin
-        const description = event["SUMMARY"] || "Sin descripción"; // Maneja la descripción
-        const location = event["LOCATION"] || "Sin ubicación"; // Maneja la ubicación
-
-        // Asegúrate de que las fechas sean válidas antes de añadir el evento
-        if (start && end) {
-          calendar.addEvent({
-            title: description,
-            start: start,
-            end: end,
-            extendedProps: {
-              location: location,
-            },
-          });
-        } else {
-          console.error(
-            "Error al agregar el evento: Fechas no válidas",
-            event
-          );
-        }
-      });
     }
   </script>
 </body>
