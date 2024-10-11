@@ -385,19 +385,16 @@
       const room = params.get("room"); // Obtener la sala desde los parámetros de la URL
 
       // Establecer el valor del select si se encontró el parámetro
-      const roomSelect = document.getElementById("calendarSelector"); // Asumiendo que tu select tiene este ID
       if (room) {
-        roomSelect.value = room; // Seleccionar la opción en el select
+        select.value = room; // Seleccionar la opción en el select
         fetchEventsForRoom(room); // Llamar a la función para obtener eventos
       } else {
         console.log("No se especificó ninguna sala en la URL");
       }
-
-      roomSelect.addEventListener("change", (event) => {
+      select.addEventListener("change", (event) => {
         const selectedRoom = event.target.value; // Obtener la sala seleccionada
         fetchEventsForRoom(selectedRoom); // Obtener los eventos para la sala seleccionada
       });
-
       function fetchEventsForRoom(room) {
         fetch(`/ics/${encodeURIComponent(room)}`)
           .then((response) => {
