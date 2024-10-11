@@ -266,8 +266,21 @@
       const params = new URLSearchParams(window.location.search);
       const room = params.get("room"); // Obtener la sala desde los parámetros de la URL
 
+      // Establecer el valor del select si se encontró el parámetro
+      const roomSelect = document.getElementById("calendarSelector"); // Asumiendo que tu select tiene este ID
       if (room) {
-        // Realizar la solicitud al backend para obtener el archivo ICS correspondiente
+        roomSelect.value = room; // Seleccionar la opción en el select
+        fetchEventsForRoom(room); // Llamar a la función para obtener eventos
+      } else {
+        console.log("No se especificó ninguna sala en la URL");
+      }
+
+      roomSelect.addEventListener("change", (event) => {
+        const selectedRoom = event.target.value; // Obtener la sala seleccionada
+        fetchEventsForRoom(selectedRoom); // Obtener los eventos para la sala seleccionada
+      });
+
+      function fetchEventsForRoom(room) {
         fetch(`/ics/${encodeURIComponent(room)}`)
           .then((response) => {
             if (!response.ok) {
@@ -276,15 +289,12 @@
             return response.text();
           })
           .then((icsData) => {
-            // Aquí llamas tu función de parseo de archivos .ics para procesar los eventos
-            const events = parseICS(icsData);  // Asegúrate de tener implementada esta función
-            displayEvents(events);  // Muestra los eventos en el calendario FullCalendar
+            const events = parseICS(icsData); // Asegúrate de tener implementada esta función
+            displayEvents(events); // Muestra los eventos en el calendario FullCalendar
           })
           .catch((error) => {
             console.error("Error:", error);
           });
-      } else {
-        console.log("No se especificó ninguna sala en la URL");
       }
 
       function isMobileDevice() {
