@@ -263,40 +263,6 @@
       const modal = document.getElementById("eventModal");
       const modalClose = document.querySelector(".close");
 
-      const params = new URLSearchParams(window.location.search);
-      const room = params.get("room"); // Obtener la sala desde los parámetros de la URL
-
-      // Establecer el valor del select si se encontró el parámetro
-      const roomSelect = document.getElementById("calendarSelector"); // Asumiendo que tu select tiene este ID
-      if (room) {
-        roomSelect.value = room; // Seleccionar la opción en el select
-        fetchEventsForRoom(room); // Llamar a la función para obtener eventos
-      } else {
-        console.log("No se especificó ninguna sala en la URL");
-      }
-
-      roomSelect.addEventListener("change", (event) => {
-        const selectedRoom = event.target.value; // Obtener la sala seleccionada
-        fetchEventsForRoom(selectedRoom); // Obtener los eventos para la sala seleccionada
-      });
-
-      function fetchEventsForRoom(room) {
-        fetch(`/ics/${encodeURIComponent(room)}`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Error al obtener el archivo ICS");
-            }
-            return response.text();
-          })
-          .then((icsData) => {
-            const events = parseICS(icsData); // Asegúrate de tener implementada esta función
-            displayEvents(events); // Muestra los eventos en el calendario FullCalendar
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-
       function isMobileDevice() {
         return /Mobi|Android/i.test(navigator.userAgent);
       }
@@ -414,6 +380,40 @@
       toolbar.appendChild(texto);
       toolbar.appendChild(select);
       toolbar.appendChild(reservationButton);
+
+      const params = new URLSearchParams(window.location.search);
+      const room = params.get("room"); // Obtener la sala desde los parámetros de la URL
+
+      // Establecer el valor del select si se encontró el parámetro
+      const roomSelect = document.getElementById("calendarSelector"); // Asumiendo que tu select tiene este ID
+      if (room) {
+        roomSelect.value = room; // Seleccionar la opción en el select
+        fetchEventsForRoom(room); // Llamar a la función para obtener eventos
+      } else {
+        console.log("No se especificó ninguna sala en la URL");
+      }
+
+      roomSelect.addEventListener("change", (event) => {
+        const selectedRoom = event.target.value; // Obtener la sala seleccionada
+        fetchEventsForRoom(selectedRoom); // Obtener los eventos para la sala seleccionada
+      });
+
+      function fetchEventsForRoom(room) {
+        fetch(`/ics/${encodeURIComponent(room)}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error al obtener el archivo ICS");
+            }
+            return response.text();
+          })
+          .then((icsData) => {
+            const events = parseICS(icsData); // Asegúrate de tener implementada esta función
+            displayEvents(events); // Muestra los eventos en el calendario FullCalendar
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
 
       loadICS(Object.keys(icsUrls)[0]);
 
