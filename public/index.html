@@ -126,7 +126,6 @@
 
 <body>
   <div id="calendar"></div>
-
   <!-- Modal para mostrar detalles del evento -->
   <div id="eventModal" class="modal">
     <div class="modal-content">
@@ -262,7 +261,6 @@
       const calendarEl = document.getElementById("calendar");
       const modal = document.getElementById("eventModal");
       const modalClose = document.querySelector(".close");
-
       function isMobileDevice() {
         return /Mobi|Android/i.test(navigator.userAgent);
       }
@@ -449,6 +447,61 @@
       });
 
       displayEvents(events);
+    }
+
+
+    function generateRecurrenceEvents(event) {
+      const recurrenceEvents = [];
+      const rrule = event["RRULE"];
+      const startDate = formatICSDate(event["DTSTART"]);
+      const endDate = formatICSDate(event["DTEND"]);
+
+      const ruleParts = rrule.split(";");
+      let frequency = "DAILY",
+        interval = 1,
+        untilDate = null;
+
+      ruleParts.forEach((part) => {
+        const [key, value] = part.split("=");
+        if (key === "FREQ") frequency = value;
+        if (key === "UNTIL") untilDate = formatICSDate(value);
+        if (key === "INTERVAL") interval = parseInt(value);
+      });
+
+      let currentDate = new Date(startDate);
+      const until = untilDate
+        ? new Date(untilDate)
+        : new Date(currentDate.getFullYear() + 1, 0, 1);
+
+      while (currentDate <= until) {
+        const newEvent = {
+          DTSTART: currentDate.toISOString(),
+          DTEND: new Date(
+            currentDate.getTime() + (endDate - startDate)
+          ).toISOString(),
+          SUMMARY: event["SUMMARY"],
+          LOCATION: event["LOCATION"],
+        };
+        recurrenceEvents.push(newEvent);
+
+        // Avanza a la siguiente fecha basándose en la frecuencia e intervalo
+        switch (frequency) {
+          case "DAILY":
+            currentDate.setDate(currentDate.getDate() + interval);
+            break;
+          case "WEEKLY":
+            currentDate.setDate(currentDate.getDate() + 7 * interval);
+            break;
+          case "MONTHLY":
+            currentDate.setMonth(currentDate.getMonth() + interval);
+            break;
+          case "YEARLY":
+            currentDate.setFullYear(currentDate.getFullYear() + interval);
+            break;
+        }
+      }
+
+      return recurrenceEvents;
     }
 
     function displayEvents(events) {
