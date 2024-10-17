@@ -11,6 +11,17 @@
   <title>Calendario de Salas</title>
   <style>
     /* Estilos generales */
+
+    .fc-event.busy {
+      background-color: #e3f2fd;
+      border: 1px solid #2196f3;
+    }
+
+    .fc-event.tentative {
+      background-color: #fff3e0;
+      border: 1px solid #ffa726;
+    }
+
     .fc-toolbar {
       display: flex;
       justify-content: space-between;
@@ -133,7 +144,7 @@
       <h2 id="modalTitle">Detalles del Evento</h2>
       <p><strong>Inicio:</strong> <span id="modalStart"></span></p>
       <p><strong>Fin:</strong> <span id="modalEnd"></span></p>
-      <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
+      <p><strong>Nombre Evento:</strong> <span id="modalDescription"></span></p>
       <p><strong>Ubicación:</strong> <span id="modalLocation"></span></p>
       <p><strong>Requerimientos:</strong> <span id="modalRequirements"></span></p>
     </div>
@@ -517,6 +528,10 @@
           ? cleanRequerimientos(event["DESCRIPTION"])
           : "Sin requerimientos";
 
+        // Leer el estado del evento (TENTATIVE o BUSY)
+        const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
+        const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
+
         if (start && end) {
           calendar.addEvent({
             title: description,
@@ -527,6 +542,7 @@
               location: location,
               requerimientos: requerimientos
             },
+            classNames: [classNames]  // Asignar la clase según el estado del evento
           });
         } else {
           console.error("Error al agregar el evento: Fechas no válidas", event);
@@ -542,9 +558,14 @@
         .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "") // Eliminar el texto no deseado
         .replace(/contestar este mail fuera de horario laboral./g, "") // Eliminar el texto no deseado
         .replace(/No sienta la obligación de/g, "") // Eliminar el texto no deseado
-        .trim();                    // Eliminar espacios en blanco al principio y al final
+        .replace(/Microsoft Teams ¿Necesita ayuda\?.*Unirse a la reunión ahora<.*?>/g, "") // Eliminar la invitación de Microsoft Teams
+        .replace(/Id\. de reunión: \d+ Código de acceso: \w+/g, "") // Eliminar Id. de reunión y código de acceso
+        .replace(/Opciones de la reunión<.*?>/g, "") // Eliminar opciones de reunión de Teams
+        .replace(/Para organizadores:.*__/g, "") // Eliminar "Para organizadores" y el contenido relacionado
+        .replace(/_{10,}/g, "") // Eliminar líneas largas de guiones bajos
+        .replace(/Id\. de reunión:.*?Código de acceso:.*?\./g, "") // Eliminar la última línea de "Id. de reunión" y "Código de acceso"
+        .trim(); // Eliminar espacios en blanco al principio y al final
     }
-
 
     function formatICSDate(dateStr) {
       if (dateStr.includes("-")) {
