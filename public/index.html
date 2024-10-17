@@ -460,60 +460,64 @@
       displayEvents(events);
     }
 
-
     function generateRecurrenceEvents(event) {
-      const recurrenceEvents = [];
-      const rrule = event["RRULE"];
-      const startDate = formatICSDate(event["DTSTART"]);
-      const endDate = formatICSDate(event["DTEND"]);
+  const recurrenceEvents = [];
+  const rrule = event["RRULE"];
+  const startDate = formatICSDate(event["DTSTART"]);
+  const endDate = formatICSDate(event["DTEND"]);
 
-      const ruleParts = rrule.split(";");
-      let frequency = "DAILY",
-        interval = 1,
-        untilDate = null;
+  const ruleParts = rrule.split(";");
+  let frequency = "DAILY",
+    interval = 1,
+    untilDate = null,
+    byDays = []; // Días de la semana especificados en BYDAY
 
-      ruleParts.forEach((part) => {
-        const [key, value] = part.split("=");
-        if (key === "FREQ") frequency = value;
-        if (key === "UNTIL") untilDate = formatICSDate(value);
-        if (key === "INTERVAL") interval = parseInt(value);
-      });
+  ruleParts.forEach((part) => {
+    const [key, value] = part.split("=");
+    if (key === "FREQ") frequency = value;
+    if (key === "UNTIL") untilDate = formatICSDate(value);
+    if (key === "INTERVAL") interval = parseInt(value);
+    if (key === "BYDAY") byDays = value.split(","); // Extraer los días de la semana
+  });
 
-      let currentDate = new Date(startDate);
-      const until = untilDate
-        ? new Date(untilDate)
-        : new Date(currentDate.getFullYear() + 1, 0, 1);
+  const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+  const startDay = new Date(startDate).getDay(); // Obtener el día inicial de la semana (0 = Domingo, 1 = Lunes, ...)
+  
+  let currentDate = new Date(startDate);
+  const until = untilDate
+    ? new Date(untilDate)
+    : new Date(currentDate.getFullYear() + 1, 0, 1);
 
-      while (currentDate <= until) {
+  while (currentDate <= until) {
+    // Para cada semana, generamos eventos en los días de BYDAY
+    byDays.forEach((day) => {
+      const dayOfWeek = daysMap[day]; // Convertir el día de la semana (MO, TU, etc.) en número (0 = Domingo, 1 = Lunes, etc.)
+      
+      // Calcular la fecha del próximo día especificado en BYDAY
+      const eventDate = new Date(currentDate);
+      eventDate.setDate(
+        currentDate.getDate() + ((dayOfWeek - startDay + 7) % 7)
+      );
+
+      if (eventDate <= until && eventDate >= currentDate) {
         const newEvent = {
-          DTSTART: currentDate.toISOString(),
-          DTEND: new Date(
-            currentDate.getTime() + (endDate - startDate)
-          ).toISOString(),
+          DTSTART: eventDate.toISOString(),
+          DTEND: new Date(eventDate.getTime() + (endDate - startDate)).toISOString(),
           SUMMARY: event["SUMMARY"],
           LOCATION: event["LOCATION"],
+          DESCRIPTION: event["DESCRIPTION"], // Puedes agregar más campos si es necesario
         };
         recurrenceEvents.push(newEvent);
-
-        // Avanza a la siguiente fecha basándose en la frecuencia e intervalo
-        switch (frequency) {
-          case "DAILY":
-            currentDate.setDate(currentDate.getDate() + interval);
-            break;
-          case "WEEKLY":
-            currentDate.setDate(currentDate.getDate() + 7 * interval);
-            break;
-          case "MONTHLY":
-            currentDate.setMonth(currentDate.getMonth() + interval);
-            break;
-          case "YEARLY":
-            currentDate.setFullYear(currentDate.getFullYear() + interval);
-            break;
-        }
       }
+    });
 
-      return recurrenceEvents;
-    }
+    // Avanza a la siguiente semana
+    currentDate.setDate(currentDate.getDate() + 7 * interval);
+  }
+
+  return recurrenceEvents;
+}
+
 
     function displayEvents(events) {
       calendar.removeAllEvents();
