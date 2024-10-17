@@ -427,9 +427,8 @@
       let previousKey = null;
 
       lines.forEach((line) => {
-        // Si la línea comienza con un espacio, es una continuación de la línea anterior
         if (line.startsWith(" ") && currentEvent && previousKey) {
-          currentEvent[previousKey] += line.trim(); // Une la línea anterior con la actual, eliminando espacios adicionales
+          currentEvent[previousKey] += line.trim();
         } else if (line.startsWith("BEGIN:VEVENT")) {
           currentEvent = {};
         } else if (line.startsWith("END:VEVENT")) {
@@ -448,10 +447,10 @@
             if (key.includes("TZID")) {
               const keyParts = key.split(";");
               currentEvent[keyParts[0]] = value;
-              previousKey = keyParts[0]; // Guardar la clave para detectar continuaciones
+              previousKey = keyParts[0];
             } else {
               currentEvent[key] = value;
-              previousKey = key; // Guardar la clave para detectar continuaciones
+              previousKey = key;
             }
           }
         }
@@ -470,18 +469,18 @@
   let frequency = "DAILY",
     interval = 1,
     untilDate = null,
-    byDays = []; // Días de la semana especificados en BYDAY
+    byDays = [];
 
   ruleParts.forEach((part) => {
     const [key, value] = part.split("=");
     if (key === "FREQ") frequency = value;
     if (key === "UNTIL") untilDate = formatICSDate(value);
     if (key === "INTERVAL") interval = parseInt(value);
-    if (key === "BYDAY") byDays = value.split(","); // Extraer los días de la semana
+    if (key === "BYDAY") byDays = value.split(",");
   });
 
   const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
-  const startDay = new Date(startDate).getDay(); // Obtener el día inicial de la semana (0 = Domingo, 1 = Lunes, ...)
+  const startDay = new Date(startDate).getDay();
   
   let currentDate = new Date(startDate);
   const until = untilDate
@@ -489,11 +488,8 @@
     : new Date(currentDate.getFullYear() + 1, 0, 1);
 
   while (currentDate <= until) {
-    // Para cada semana, generamos eventos en los días de BYDAY
     byDays.forEach((day) => {
-      const dayOfWeek = daysMap[day]; // Convertir el día de la semana (MO, TU, etc.) en número (0 = Domingo, 1 = Lunes, etc.)
-      
-      // Calcular la fecha del próximo día especificado en BYDAY
+      const dayOfWeek = daysMap[day];
       const eventDate = new Date(currentDate);
       eventDate.setDate(
         currentDate.getDate() + ((dayOfWeek - startDay + 7) % 7)
@@ -505,13 +501,11 @@
           DTEND: new Date(eventDate.getTime() + (endDate - startDate)).toISOString(),
           SUMMARY: event["SUMMARY"],
           LOCATION: event["LOCATION"],
-          DESCRIPTION: event["DESCRIPTION"], // Puedes agregar más campos si es necesario
+          DESCRIPTION: event["DESCRIPTION"],
         };
         recurrenceEvents.push(newEvent);
       }
     });
-
-    // Avanza a la siguiente semana
     currentDate.setDate(currentDate.getDate() + 7 * interval);
   }
 
@@ -556,19 +550,19 @@
 
     function cleanRequerimientos(text) {
       return text
-        .replace(/\\,/g, ",")       // Reemplazar '\,' por ','
-        .replace(/\\n/g, " ")       // Reemplazar '\n' por un espacio
-        .replace(/\n/g, " ")        // Reemplazar cualquier salto de línea adicional
-        .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "") // Eliminar el texto no deseado
-        .replace(/contestar este mail fuera de horario laboral./g, "") // Eliminar el texto no deseado
-        .replace(/No sienta la obligación de/g, "") // Eliminar el texto no deseado
-        .replace(/Microsoft Teams ¿Necesita ayuda\?.*Unirse a la reunión ahora<.*?>/g, "") // Eliminar la invitación de Microsoft Teams
-        .replace(/Id\. de reunión: \d+ Código de acceso: \w+/g, "") // Eliminar Id. de reunión y código de acceso
-        .replace(/Opciones de la reunión<.*?>/g, "") // Eliminar opciones de reunión de Teams
-        .replace(/Para organizadores:.*__/g, "") // Eliminar "Para organizadores" y el contenido relacionado
-        .replace(/_{10,}/g, "") // Eliminar líneas largas de guiones bajos
-        .replace(/Id\. de reunión:.*?Código de acceso:.*?\./g, "") // Eliminar la última línea de "Id. de reunión" y "Código de acceso"
-        .trim(); // Eliminar espacios en blanco al principio y al final
+        .replace(/\\,/g, ",")
+        .replace(/\\n/g, " ")
+        .replace(/\n/g, " ")
+        .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "")
+        .replace(/contestar este mail fuera de horario laboral./g, "")
+        .replace(/No sienta la obligación de/g, "")
+        .replace(/Microsoft Teams ¿Necesita ayuda\?.*Unirse a la reunión ahora<.*?>/g, "")
+        .replace(/Id\. de reunión: \d+ Código de acceso: \w+/g, "")
+        .replace(/Opciones de la reunión<.*?>/g, "")
+        .replace(/Para organizadores:.*__/g, "")
+        .replace(/_{10,}/g, "")
+        .replace(/Id\. de reunión:.*?Código de acceso:.*?\./g, "")
+        .trim();
     }
 
     function formatICSDate(dateStr) {
