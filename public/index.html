@@ -9,130 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.4.0/ical.min.js"></script>
   <title>Calendario de Salas</title>
-  <style>
-    /* Estilos generales */
-
-    .fc-event.busy {
-      background-color: #e3f2fd;
-      border: 1px solid #2196f3;
-    }
-
-    .fc-event.tentative {
-      background-color: #fff3e0;
-      border: 1px solid #ffa726;
-    }
-
-    .fc-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .fc-toolbar-title {
-      font-size: 18px;
-      margin-left: 20px;
-    }
-
-    #textCampo {
-      margin-left: 20px;
-      margin-right: 10px;
-    }
-
-    h1,
-    h2,
-    h3 {
-      font-family: "Roboto", sans-serif;
-      font-weight: 700;
-      color: #333;
-    }
-
-    .fc-event-title {
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .fc-event {
-      padding: 5px;
-      border-radius: 5px;
-      background-color: #e3f2fd;
-      border: 1px solid #2196f3;
-      position: relative;
-      overflow-y: hidden;
-      overflow-x: hidden;
-      white-space: normal;
-      word-wrap: break-word;
-      cursor: pointer;
-    }
-
-    select {
-      width: auto;
-      padding: 5px;
-      font-size: 14px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      margin-left: 10px;
-    }
-
-    #calendar {
-      height: calc(100vh - 100px);
-    }
-
-    #reservationButton {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-family: "Arial", sans-serif;
-      transition: background-color 0.3s;
-      margin-left: 140px;
-      margin-top: 15px;
-    }
-
-    #reservationButton:hover {
-      background-color: #0056b3;
-    }
-
-    /* Estilos para el modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      padding-top: 100px;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .modal-content {
-      background-color: #fefefe;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 600px;
-      border-radius: 10px;
-    }
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -272,6 +149,7 @@
       const calendarEl = document.getElementById("calendar");
       const modal = document.getElementById("eventModal");
       const modalClose = document.querySelector(".close");
+
       function isMobileDevice() {
         return /Mobi|Android/i.test(navigator.userAgent);
       }
@@ -333,19 +211,19 @@
         eventContent: function (arg) {
           const date = arg.event.start;
           const dateEnd = arg.event.end;
-          const formattedTime = date.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const formattedTimeEnd = dateEnd.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+
+          // Verificar si la hora de inicio es a las 00:00
+          const isAllDay = date.getHours() === 0 && date.getMinutes() === 0;
+
+          // Si es "Todo el día", mostrar como tal
+          const formattedTime = isAllDay ? "Todo el día" : date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+          const formattedTimeEnd = isAllDay ? "Todo el día" : date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
 
           return {
-            html: `<br>${formattedTime} - ${formattedTimeEnd}<br>${arg.event.title}`,
+            html: `<div style="color: black; font-weight: normal;">${formattedTime} - ${formattedTimeEnd}<br>${arg.event.title}</div>`,
           };
-        },
+        }
+        ,
       });
 
       calendar.render();
@@ -420,6 +298,7 @@
           console.error("Hubo un problema con la carga del archivo .ics:", error);
         });
     }
+
     function parseICS(data) {
       const events = [];
       const lines = data.split(/\r?\n/);
@@ -433,25 +312,56 @@
           currentEvent = {};
         } else if (line.startsWith("END:VEVENT")) {
           if (currentEvent && currentEvent["DTSTART"] && currentEvent["DTEND"]) {
-            if (currentEvent["RRULE"]) {
-              const recurrenceEvents = generateRecurrenceEvents(currentEvent);
-              events.push(...recurrenceEvents);
+            // Verificación de fechas válidas para eventos de todo el día
+            if (currentEvent["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE") {
+              if (!isValidDate(currentEvent["DTSTART"], true) || !isValidDate(currentEvent["DTEND"], true)) {
+              } else {
+                currentEvent["TODO_EL_DIA"] = "TODO EL DÍA";
+                events.push(currentEvent);  // Agregar el evento de todo el día
+              }
             } else {
-              events.push(currentEvent);
+              // Verificación para eventos no todo el día
+              if (!isValidDate(currentEvent["DTSTART"]) || !isValidDate(currentEvent["DTEND"])) {
+                console.error("Evento con fecha no válida:", currentEvent);
+              } else {
+                if (currentEvent["RRULE"]) {
+                  const recurrenceEvents = generateRecurrenceEvents(currentEvent);
+                  events.push(...recurrenceEvents);
+                } else {
+                  events.push(currentEvent);
+                }
+              }
             }
+          } else {
+            console.error("Evento incompleto, falta DTSTART o DTEND:", currentEvent);
           }
           currentEvent = null;
         } else if (currentEvent) {
           const [key, value] = line.split(":");
-          if (key && value) {
-            if (key.includes("TZID")) {
-              const keyParts = key.split(";");
-              currentEvent[keyParts[0]] = value;
-              previousKey = keyParts[0];
-            } else {
-              currentEvent[key] = value;
-              previousKey = key;
+
+          // Procesar claves que contienen parámetros, como DTSTART;VALUE=DATE
+          if (key.includes(";")) {
+            const keyParts = key.split(";");
+            const mainKey = keyParts[0];  // Ejemplo: "DTSTART"
+            const parameter = keyParts[1];  // Ejemplo: "VALUE=DATE"
+
+            // Agregar parámetros al valor de la fecha
+            if (mainKey === "DTSTART" || mainKey === "DTEND") {
+              currentEvent[mainKey] = value; // Asignamos el valor de la fecha
+              currentEvent[`${mainKey}_PARAM`] = parameter; // Guardamos el parámetro adicional
             }
+          } else if (key.startsWith("DTSTART") || key.startsWith("DTEND")) {
+            // Procesamos la fecha y hora de inicio y fin
+            if (key.includes("VALUE=DATE")) {
+              currentEvent[key] = value; // Asignamos la fecha (sin hora)
+            } else {
+              // Si tiene zona horaria, lo procesamos con la zona horaria
+              currentEvent[key] = value;
+            }
+            previousKey = key;
+          } else {
+            currentEvent[key] = value;
+            previousKey = key;
           }
         }
       });
@@ -459,136 +369,117 @@
       displayEvents(events);
     }
 
+    // Función para validar fechas
+    function isValidDate(date, isAllDayEvent = false) {
+      const regex = isAllDayEvent ? /^\d{8}$/ : /^\d{8}T\d{6}(Z|([+-]\d{4}))?$/; // Formato: 20231205 o 20231205T140000Z
+      return regex.test(date);
+    }
+
+
     function generateRecurrenceEvents(event) {
-  const recurrenceEvents = [];
-  const rrule = event["RRULE"];
-  const startDate = formatICSDate(event["DTSTART"]);
-  const endDate = formatICSDate(event["DTEND"]);
+      const recurrenceEvents = [];
+      const rrule = event["RRULE"];
+      const startDate = formatICSDate(event["DTSTART"]);
+      const endDate = formatICSDate(event["DTEND"]);
 
-  const ruleParts = rrule.split(";");
-  let frequency = "DAILY",
-    interval = 1,
-    untilDate = null,
-    byDays = [];
+      const ruleParts = rrule.split(";");
+      let frequency = "DAILY",
+        interval = 1,
+        untilDate = null,
+        byDays = [];
 
-  ruleParts.forEach((part) => {
-    const [key, value] = part.split("=");
-    if (key === "FREQ") frequency = value;
-    if (key === "UNTIL") untilDate = formatICSDate(value);
-    if (key === "INTERVAL") interval = parseInt(value);
-    if (key === "BYDAY") byDays = value.split(",");
-  });
+      ruleParts.forEach((part) => {
+        const [key, value] = part.split("=");
+        if (key === "FREQ") frequency = value;
+        if (key === "UNTIL") untilDate = formatICSDate(value);
+        if (key === "INTERVAL") interval = parseInt(value);
+        if (key === "BYDAY") byDays = value.split(",");
+      });
 
-  const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
-  const startDay = new Date(startDate).getDay();
-  
-  let currentDate = new Date(startDate);
-  const until = untilDate
-    ? new Date(untilDate)
-    : new Date(currentDate.getFullYear() + 1, 0, 1);
+      const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+      const startDay = new Date(startDate).getDay();
 
-  while (currentDate <= until) {
-    byDays.forEach((day) => {
-      const dayOfWeek = daysMap[day];
-      const eventDate = new Date(currentDate);
-      eventDate.setDate(
-        currentDate.getDate() + ((dayOfWeek - startDay + 7) % 7)
-      );
+      let currentDate = new Date(startDate);
+      const until = untilDate ? new Date(untilDate) : new Date(currentDate.getFullYear() + 1, 0, 1);
 
-      if (eventDate <= until && eventDate >= currentDate) {
-        const newEvent = {
-          DTSTART: eventDate.toISOString(),
-          DTEND: new Date(eventDate.getTime() + (endDate - startDate)).toISOString(),
-          SUMMARY: event["SUMMARY"],
-          LOCATION: event["LOCATION"],
-          DESCRIPTION: event["DESCRIPTION"],
-        };
-        recurrenceEvents.push(newEvent);
+      while (currentDate <= until) {
+        byDays.forEach((day) => {
+          const dayOfWeek = daysMap[day];
+          const eventDate = new Date(currentDate);
+          eventDate.setDate(currentDate.getDate() + ((dayOfWeek - startDay + 7) % 7));
+
+          if (eventDate <= until && eventDate >= currentDate) {
+            const newEvent = {
+              DTSTART: eventDate.toISOString(),
+              DTEND: new Date(eventDate.getTime() + (endDate - startDate)).toISOString(),
+              SUMMARY: event["SUMMARY"],
+              LOCATION: event["LOCATION"],
+              DESCRIPTION: event["DESCRIPTION"],
+            };
+            recurrenceEvents.push(newEvent);
+          }
+        });
+        currentDate.setDate(currentDate.getDate() + 7 * interval);
       }
-    });
-    currentDate.setDate(currentDate.getDate() + 7 * interval);
-  }
 
-  return recurrenceEvents;
-}
-
+      return recurrenceEvents;
+    }
 
     function displayEvents(events) {
       calendar.removeAllEvents();
       events.forEach((event) => {
-        const start = formatICSDate(event["DTSTART"]);
-        const end = formatICSDate(event["DTEND"]);
         const description = event["SUMMARY"] || "Sin descripción";
         const location = event["LOCATION"] || "Sin ubicación";
-
-        // Limpiar los requerimientos
-        const requerimientos = event["DESCRIPTION"]
-          ? cleanRequerimientos(event["DESCRIPTION"])
-          : "Sin requerimientos";
-
-        // Leer el estado del evento (TENTATIVE o BUSY)
+        const requerimientos = event["DESCRIPTION"] ? cleanRequerimientos(event["DESCRIPTION"]) : "Sin requerimientos";
         const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
         const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
 
-        if (start && end) {
+        // Validación para eventos de todo el día (sin horas especificadas en DTSTART/DTEND)
+        let eventStart = formatICSDate(event["DTSTART"], event["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE");
+        let eventEnd = formatICSDate(event["DTEND"], event["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE");
+
+        // Para eventos de todo el día, no asignamos horas
+        if (event["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE") {
+          // Asegúrate de que la fecha se mantenga sin horas
+          eventStart = eventStart.split("T")[0];  // Solo la fecha, sin hora
+          eventEnd = eventEnd.split("T")[0];      // Solo la fecha, sin hora
+        }
+
+        // Si la fecha y la hora son correctas, agregar al calendario
+        if (eventStart && eventEnd) {
           calendar.addEvent({
             title: description,
-            start: start,
-            end: end,
+            start: eventStart,
+            end: eventEnd,
             extendedProps: {
               description: description,
               location: location,
-              requerimientos: requerimientos
+              requerimientos: requerimientos,
             },
-            classNames: [classNames]  // Asignar la clase según el estado del evento
+            classNames: [classNames],
           });
-        } else {
-          console.error("Error al agregar el evento: Fechas no válidas", event);
         }
       });
     }
 
-    function cleanRequerimientos(text) {
-      return text
-        .replace(/\\,/g, ",")
-        .replace(/\\n/g, " ")
-        .replace(/\n/g, " ")
-        .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "")
-        .replace(/contestar este mail fuera de horario laboral./g, "")
-        .replace(/No sienta la obligación de/g, "")
-        .replace(/Microsoft Teams ¿Necesita ayuda\?.*Unirse a la reunión ahora<.*?>/g, "")
-        .replace(/Id\. de reunión: \d+ Código de acceso: \w+/g, "")
-        .replace(/Opciones de la reunión<.*?>/g, "")
-        .replace(/Para organizadores:.*__/g, "")
-        .replace(/_{10,}/g, "")
-        .replace(/Id\. de reunión:.*?Código de acceso:.*?\./g, "")
-        .trim();
+    function cleanRequerimientos(description) {
+      // Limpiar el campo de requerimientos, si es necesario
+      const regex = /Requerimientos:\s*(.*)/;
+      const match = description.match(regex);
+      return match ? match[1] : "Sin requerimientos";
     }
 
-    function formatICSDate(dateStr) {
-      if (dateStr.includes("-")) {
-        return new Date(dateStr);
+    function formatICSDate(icsDate, isAllDay = false) {
+      if (!icsDate) return "";
+
+      // Si el evento es de todo el día, solo devolvemos la fecha en formato YYYY-MM-DD con hora 00:00
+      if (isAllDay) {
+        return icsDate.replace("T", "TODO EL DIA");  // Asignamos la hora 08:30 para los eventos de todo el día
       }
 
-      const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
-      if (!dateMatch) {
-        return null;
-      }
-
-      const dateFormatted =
-        dateStr.slice(0, 4) +
-        "-" +
-        dateStr.slice(4, 6) +
-        "-" +
-        dateStr.slice(6, 8) +
-        "T" +
-        dateStr.slice(9, 11) +
-        ":" +
-        dateStr.slice(11, 13) +
-        ":" +
-        dateStr.slice(13, 15);
-      return new Date(dateFormatted);
+      return icsDate.replace("T", " ");  // Si tiene hora, simplemente reemplazamos "T" por un espacio
     }
+
   </script>
 </body>
 
