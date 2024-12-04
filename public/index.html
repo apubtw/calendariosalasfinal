@@ -217,13 +217,12 @@
 
           // Si es "Todo el día", mostrar como tal
           const formattedTime = isAllDay ? "Todo el día" : date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-          const formattedTimeEnd = isAllDay ? "Todo el día" : date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+          const formattedTimeEnd = isAllDay ? "Todo el día" : dateEnd.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
 
           return {
             html: `<div style="color: black; font-weight: normal;">${formattedTime} - ${formattedTimeEnd}<br>${arg.event.title}</div>`,
           };
-        }
-        ,
+        },
       });
 
       calendar.render();
