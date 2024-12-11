@@ -14,7 +14,7 @@
 
 <body>
   <div id="calendar"></div>
-  <!-- Modal para mostrar detalles del evento -->
+
   <div id="eventModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -192,7 +192,7 @@
           day: "Día",
         },
         eventClick: function (info) {
-          // Mostrar el modal con la información del evento
+
           document.getElementById("modalTitle").textContent = info.event.title;
           document.getElementById("modalStart").textContent = info.event.start.toLocaleString("es-ES", {
             dateStyle: "full",
@@ -205,20 +205,18 @@
           document.getElementById("modalLocation").textContent = info.event.extendedProps.location || "Sin ubicación";
           document.getElementById("modalRequirements").textContent = info.event.extendedProps.requerimientos || "Sin requerimientos";
 
-          modal.style.display = "block"; // Mostrar el modal
+          modal.style.display = "block";
         },
         eventContent: function (arg) {
           const date = arg.event.start;
           const dateEnd = arg.event.end;
 
-          // Verifica si las horas de inicio y fin son 00:00
           const isAllDayEvent =
             date.getHours() === 0 &&
             date.getMinutes() === 0 &&
             dateEnd.getHours() === 0 &&
             dateEnd.getMinutes() === 0;
 
-          // Formatea las horas si no es un evento de todo el día
           const formattedTime = isAllDayEvent
             ? "Todo el Día"
             : date.toLocaleTimeString("es-ES", {
@@ -287,12 +285,10 @@
 
       loadICS(Object.keys(icsUrls)[0]);
 
-      // Cerrar el modal al hacer clic en la "X"
       modalClose.onclick = function () {
         modal.style.display = "none";
       };
 
-      // Cerrar el modal al hacer clic fuera de él
       window.onclick = function (event) {
         if (event.target === modal) {
           modal.style.display = "none";
@@ -349,9 +345,7 @@
               previousKey = key;
             }
 
-            // Verificar si el evento es de tipo "allday"
             if (key === "X-MICROSOFT-CDO-ALLDAYEVENT" && value === "TRUE") {
-              console.log("Allday event detected:", currentEvent); // Depuración para eventos AllDay
               currentEvent.allDay = true;
               events.push(currentEvent);
             }
@@ -418,21 +412,17 @@
     }
 
     function displayEvents(events) {
-      console.log("Starting to process events...");
       calendar.removeAllEvents();
-      console.log("Removed all previous events from the calendar.");
 
       events.forEach((event, index) => {
         try {
-          console.log(`Processing event #${index + 1}:`, event);
 
-          // Validar DTSTART y DTEND
           const dtStart = event["DTSTART"] || event["DTSTART;VALUE=DATE"];
           const dtEnd = event["DTEND"] || event["DTEND;VALUE=DATE"];
 
           if (!dtStart || !dtEnd) {
             console.warn(`Event #${index + 1} is missing DTSTART or DTEND:`, event);
-            return; // Saltar este evento
+            return;
           }
 
           const start = formatICSDate(dtStart);
@@ -440,22 +430,13 @@
           const description = event["SUMMARY"] || "Sin descripción";
           const location = event["LOCATION"] || "Sin ubicación";
 
-          // Depurar fechas y datos del evento
-          console.log(`Event #${index + 1} dates: start = ${start}, end = ${end}`);
-          console.log(`Event #${index + 1} details: description = "${description}", location = "${location}"`);
-
-          // Limpiar los requerimientos
           const requerimientos = event["DESCRIPTION"]
             ? cleanRequerimientos(event["DESCRIPTION"])
             : "Sin requerimientos";
-          console.log(`Event #${index + 1} requirements: ${requerimientos}`);
 
-          // Leer el estado del evento (TENTATIVE o BUSY)
           const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
           const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
-          console.log(`Event #${index + 1} busyStatus: ${busyStatus}`);
 
-          // Verificar si el evento es de tipo AllDay
           if (event.allDay === true) {
             try {
               calendar.addEvent({
@@ -464,16 +445,14 @@
                 end: end,
                 allDay: true,
               });
-              console.log("All-day event added successfully:", event);
             } catch (error) {
               console.error("Error adding all-day event:", event, error);
             }
           } else {
-            console.log(`Event #${index + 1} is a timed event.`);
             calendar.addEvent({
               title: description,
-              start: start, // Fecha y hora
-              end: end,     // Fecha y hora
+              start: start,
+              end: end,
               extendedProps: {
                 description: description,
                 location: location,
@@ -481,17 +460,12 @@
               },
               classNames: [classNames]
             });
-            console.log(`Timed event #${index + 1} added successfully.`);
           }
         } catch (error) {
           console.error(`Error processing event #${index + 1}:`, error);
         }
       });
-
-      console.log("Finished processing events.");
     }
-
-
 
     function cleanRequerimientos(text) {
       return text
@@ -513,16 +487,14 @@
     function formatICSDate(dateStr) {
       if (!dateStr) return null;
 
-      // Manejo para fechas de día completo (VALUE=DATE)
       if (dateStr.includes("VALUE=DATE")) {
-        const dateParts = dateStr.split(":")[1]; // Extraer la fecha después de ':'
+        const dateParts = dateStr.split(":")[1];
         if (dateParts && dateParts.length === 8) {
-          // Retorna la fecha en formato "YYYY-MM-DD"
+
           return `${dateParts.slice(0, 4)}-${dateParts.slice(4, 6)}-${dateParts.slice(6, 8)}`;
         }
       }
 
-      // Manejo para fechas UTC estilo 20231218T090000Z
       const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
       if (dateMatch) {
         const dateFormatted =
@@ -541,16 +513,12 @@
         return new Date(dateFormatted);
       }
 
-      // Manejo para fechas ISO (si existe algún caso con este formato)
       if (dateStr.includes("-")) {
         return dateStr;
       }
 
-      // Si no se puede procesar, retorna la cadena original
       return dateStr;
     }
-
-
   </script>
 </body>
 
