@@ -210,19 +210,37 @@
         eventContent: function (arg) {
           const date = arg.event.start;
           const dateEnd = arg.event.end;
-          const formattedTime = date.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const formattedTimeEnd = dateEnd.toLocaleTimeString("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+
+          // Verifica si las horas de inicio y fin son 00:00
+          const isAllDayEvent =
+            date.getHours() === 0 &&
+            date.getMinutes() === 0 &&
+            dateEnd.getHours() === 0 &&
+            dateEnd.getMinutes() === 0;
+
+          // Formatea las horas si no es un evento de todo el día
+          const formattedTime = isAllDayEvent
+            ? "Todo el Día"
+            : date.toLocaleTimeString("es-ES", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          const formattedTimeEnd = isAllDayEvent
+            ? ""
+            : dateEnd.toLocaleTimeString("es-ES", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
           return {
-            html: `<br>${formattedTime} - ${formattedTimeEnd}<br>${arg.event.title}`,
+            html: `
+      <div style="color: black; font-size: 14px;">
+        <br>${formattedTime} ${formattedTimeEnd ? `- ${formattedTimeEnd}` : ""}<br>${arg.event.title}
+      </div>
+    `,
           };
-        },
+        }
+        ,
       });
 
       calendar.render();
@@ -298,63 +316,50 @@
         });
     }
 
-
     function parseICS(data) {
-  const events = [];
-  const lines = data.split(/\r?\n/);
-  let currentEvent = null;
-  let previousKey = null;
+      const events = [];
+      const lines = data.split(/\r?\n/);
+      let currentEvent = null;
+      let previousKey = null;
 
-  console.log("Iniciando parseo de ICS");  // Depuración
+      lines.forEach((line, index) => {
+        if (line.startsWith(" ") && currentEvent && previousKey) {
+          currentEvent[previousKey] += line.trim();
+        } else if (line.startsWith("BEGIN:VEVENT")) {
+          currentEvent = {};
+        } else if (line.startsWith("END:VEVENT")) {
+          if (currentEvent && currentEvent["DTSTART"] && currentEvent["DTEND"]) {
+            if (currentEvent["RRULE"]) {
+              const recurrenceEvents = generateRecurrenceEvents(currentEvent);
+              events.push(...recurrenceEvents);
+            } else {
+              events.push(currentEvent);
+            }
+          }
+          currentEvent = null;
+        } else if (currentEvent) {
+          const [key, value] = line.split(":");
+          if (key && value) {
+            if (key.includes("TZID")) {
+              const keyParts = key.split(";");
+              currentEvent[keyParts[0]] = value;
+              previousKey = keyParts[0];
+            } else {
+              currentEvent[key] = value;
+              previousKey = key;
+            }
 
-  lines.forEach((line) => {
-    if (line.startsWith(" ") && currentEvent && previousKey) {
-      currentEvent[previousKey] += line.trim();
-    } else if (line.startsWith("BEGIN:VEVENT")) {
-      currentEvent = {};
-    } else if (line.startsWith("END:VEVENT")) {
-      if (currentEvent && currentEvent["DTSTART"] && currentEvent["DTEND"]) {
-        console.log("Procesando evento:", currentEvent);  // Depuración
-
-        // Verificar si es un evento de todo el día
-        const alldayEvent = currentEvent["X-MICROSOFT-CDO-ALLDAYEVENT"];
-        console.log("Valor de X-MICROSOFT-CDO-ALLDAYEVENT:", alldayEvent);  // Depuración
-
-        if (alldayEvent === "TRUE") {
-          console.log("Generando evento de todo el día:", currentEvent); // Depuración
-          const alldayEvents = generateAlldayEvents(currentEvent);
-          events.push(...alldayEvents);
-        } else if (currentEvent["RRULE"]) {
-          // Generar eventos de recurrencia
-          const recurrenceEvents = generateRecurrenceEvents(currentEvent);
-          events.push(...recurrenceEvents);
-        } else {
-          // Si no es de recurrencia ni allday, procesamos el evento de otra forma
-          console.log("Evento no es ni allday ni recurrencia:", currentEvent);  // Depuración
-          events.push(currentEvent);
+            // Verificar si el evento es de tipo "allday"
+            if (key === "X-MICROSOFT-CDO-ALLDAYEVENT" && value === "TRUE") {
+              console.log("Allday event detected:", currentEvent); // Depuración para eventos AllDay
+              currentEvent.allDay = true;
+              events.push(currentEvent);
+            }
+          }
         }
-      }
-      currentEvent = null;
-    } else if (currentEvent) {
-      const [key, value] = line.split(":");
-      if (key && value) {
-        if (key.includes("TZID")) {
-          const keyParts = key.split(";");
-          currentEvent[keyParts[0]] = value;
-          previousKey = keyParts[0];
-        } else {
-          currentEvent[key] = value;
-          previousKey = key;
-        }
-      }
+      });
+      displayEvents(events);
     }
-  });
-
-  console.log("Eventos parseados:", events);  // Depuración
-
-  displayEvents(events);
-}
-
 
 
 
@@ -412,91 +417,81 @@
       return recurrenceEvents;
     }
 
-    function generateAlldayEvents(event) {
-  const alldayEvents = [];
-  const startDate = formatICSDate(event["DTSTART"]);
-  const endDate = formatICSDate(event["DTEND"]);
+    function displayEvents(events) {
+      console.log("Starting to process events...");
+      calendar.removeAllEvents();
+      console.log("Removed all previous events from the calendar.");
 
-  // Verificar si el evento es de todo el día usando VALUE=DATE
-  const isAllday = event["DTSTART"].includes("VALUE=DATE");
+      events.forEach((event, index) => {
+        try {
+          console.log(`Processing event #${index + 1}:`, event);
 
-  console.log("Generando evento allday:", event);  // Depuración
+          // Validar DTSTART y DTEND
+          const dtStart = event["DTSTART"] || event["DTSTART;VALUE=DATE"];
+          const dtEnd = event["DTEND"] || event["DTEND;VALUE=DATE"];
 
-  if (isAllday) {
-    const newEvent = {
-      DTSTART: startDate.toISOString(),
-      DTEND: endDate ? endDate.toISOString() : startDate.toISOString(),
-      SUMMARY: event["SUMMARY"],
-      LOCATION: event["LOCATION"],
-      DESCRIPTION: event["DESCRIPTION"],
-      allDay: true,  // Indicamos que es un evento de todo el día
-    };
-    alldayEvents.push(newEvent);
-  }
+          if (!dtStart || !dtEnd) {
+            console.warn(`Event #${index + 1} is missing DTSTART or DTEND:`, event);
+            return; // Saltar este evento
+          }
 
-  console.log("Eventos allday generados:", alldayEvents);  // Depuración
+          const start = formatICSDate(dtStart);
+          const end = formatICSDate(dtEnd);
+          const description = event["SUMMARY"] || "Sin descripción";
+          const location = event["LOCATION"] || "Sin ubicación";
 
-  return alldayEvents;
-}
+          // Depurar fechas y datos del evento
+          console.log(`Event #${index + 1} dates: start = ${start}, end = ${end}`);
+          console.log(`Event #${index + 1} details: description = "${description}", location = "${location}"`);
 
+          // Limpiar los requerimientos
+          const requerimientos = event["DESCRIPTION"]
+            ? cleanRequerimientos(event["DESCRIPTION"])
+            : "Sin requerimientos";
+          console.log(`Event #${index + 1} requirements: ${requerimientos}`);
 
+          // Leer el estado del evento (TENTATIVE o BUSY)
+          const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
+          const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
+          console.log(`Event #${index + 1} busyStatus: ${busyStatus}`);
 
-function displayEvents(events) {
-  console.log("Mostrando eventos:", events);  // Depuración
-
-  calendar.removeAllEvents();
-  events.forEach((event) => {
-    const start = formatICSDate(event["DTSTART"]);
-    const end = formatICSDate(event["DTEND"]);
-    const description = event["SUMMARY"] || "Sin descripción";
-    const location = event["LOCATION"] || "Sin ubicación";
-
-    // Limpiar los requerimientos
-    const requerimientos = event["DESCRIPTION"]
-      ? cleanRequerimientos(event["DESCRIPTION"])
-      : "Sin requerimientos";
-
-    // Leer el estado del evento (TENTATIVE o BUSY)
-    const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
-    const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
-
-    // Comprobar si el evento es de todo el día
-    if (event.allDay) {
-      console.log("Evento allday:", event);  // Depuración
-      // Si es un evento de todo el día, no asignamos horas y solo usamos la fecha
-      calendar.addEvent({
-        title: description,
-        start: start,
-        end: end,
-        allDay: true,  // Marca el evento como todo el día
-        extendedProps: {
-          description: description,
-          location: location,
-          requerimientos: requerimientos,
-        },
-        classNames: [classNames],  // Asignar la clase según el estado del evento
+          // Verificar si el evento es de tipo AllDay
+          if (event.allDay === true) {
+            try {
+              calendar.addEvent({
+                title: event["SUMMARY"] || "Sin título",
+                start: start,
+                end: end,
+                allDay: true,
+              });
+              console.log("All-day event added successfully:", event);
+            } catch (error) {
+              console.error("Error adding all-day event:", event, error);
+            }
+          } else {
+            console.log(`Event #${index + 1} is a timed event.`);
+            calendar.addEvent({
+              title: description,
+              start: start, // Fecha y hora
+              end: end,     // Fecha y hora
+              extendedProps: {
+                description: description,
+                location: location,
+                requerimientos: requerimientos
+              },
+              classNames: [classNames]
+            });
+            console.log(`Timed event #${index + 1} added successfully.`);
+          }
+        } catch (error) {
+          console.error(`Error processing event #${index + 1}:`, error);
+        }
       });
-    } else {
-      console.log("Evento con hora:", event);  // Depuración
-      // Si no es todo el día, asignamos horas como antes
-      if (start && end) {
-        calendar.addEvent({
-          title: description,
-          start: start,
-          end: end,
-          extendedProps: {
-            description: description,
-            location: location,
-            requerimientos: requerimientos,
-          },
-          classNames: [classNames],  // Asignar la clase según el estado del evento
-        });
-      } else {
-        console.error("Error al agregar el evento: Fechas no válidas", event);
-      }
+
+      console.log("Finished processing events.");
     }
-  });
-}
+
+
 
     function cleanRequerimientos(text) {
       return text
@@ -516,36 +511,45 @@ function displayEvents(events) {
     }
 
     function formatICSDate(dateStr) {
-  console.log("Formato de fecha:", dateStr);  // Depuración
+      if (!dateStr) return null;
 
-  if (dateStr.includes("-")) {
-    return new Date(dateStr);
-  }
+      // Manejo para fechas de día completo (VALUE=DATE)
+      if (dateStr.includes("VALUE=DATE")) {
+        const dateParts = dateStr.split(":")[1]; // Extraer la fecha después de ':'
+        if (dateParts && dateParts.length === 8) {
+          // Retorna la fecha en formato "YYYY-MM-DD"
+          return `${dateParts.slice(0, 4)}-${dateParts.slice(4, 6)}-${dateParts.slice(6, 8)}`;
+        }
+      }
 
-  const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
-  if (!dateMatch) {
-    console.error("Formato de fecha no válido:", dateStr);  // Depuración
-    return null;
-  }
+      // Manejo para fechas UTC estilo 20231218T090000Z
+      const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
+      if (dateMatch) {
+        const dateFormatted =
+          dateStr.slice(0, 4) +
+          "-" +
+          dateStr.slice(4, 6) +
+          "-" +
+          dateStr.slice(6, 8) +
+          "T" +
+          dateStr.slice(9, 11) +
+          ":" +
+          dateStr.slice(11, 13) +
+          ":" +
+          dateStr.slice(13, 15) +
+          (dateMatch[2] ? "Z" : "");
+        return new Date(dateFormatted);
+      }
 
-  const dateFormatted =
-    dateStr.slice(0, 4) +
-    "-" +
-    dateStr.slice(4, 6) +
-    "-" +
-    dateStr.slice(6, 8) +
-    "T" +
-    dateStr.slice(9, 11) +
-    ":" +
-    dateStr.slice(11, 13) +
-    ":" +
-    dateStr.slice(13, 15);
-  const date = new Date(dateFormatted);
+      // Manejo para fechas ISO (si existe algún caso con este formato)
+      if (dateStr.includes("-")) {
+        return dateStr;
+      }
 
-  console.log("Fecha formateada:", date);  // Depuración
+      // Si no se puede procesar, retorna la cadena original
+      return dateStr;
+    }
 
-  return date;
-}
 
   </script>
 </body>
