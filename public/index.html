@@ -482,8 +482,8 @@
     .replace(/For organizers:.*?__/g, "")
     .replace(/_{10,}/g, "")
     .replace(/\s{2,}/g, " ")
-    .replace(/<.*?>/g, "") // Elimina todos los enlaces HTML
-    .replace(/https?:\/\/[^\s]+/g, "") // Elimina enlaces http y https
+    .replace(/<.*?>/g, "")
+    .replace(/https?:\/\/[^\s]+/g, "")
     .replace(/\S+@\S+\.\S+/g, "")
     .replace(/No suele recibir correo electrónico de/g, "")
     .replace(/Porqué es esto importante.*?/g, "")
