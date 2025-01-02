@@ -468,21 +468,40 @@
     }
 
     function cleanRequerimientos(text) {
-      return text
-        .replace(/\\,/g, ",")
-        .replace(/\\n/g, " ")
-        .replace(/\n/g, " ")
-        .replace(/No sienta la obligación de contestar este mail fuera de horario laboral/g, "")
-        .replace(/contestar este mail fuera de horario laboral./g, "")
-        .replace(/No sienta la obligación de/g, "")
-        .replace(/Microsoft Teams ¿Necesita ayuda\?.*Unirse a la reunión ahora<.*?>/g, "")
-        .replace(/Id\. de reunión: \d+ Código de acceso: \w+/g, "")
-        .replace(/Opciones de la reunión<.*?>/g, "")
-        .replace(/Para organizadores:.*__/g, "")
-        .replace(/_{10,}/g, "")
-        .replace(/Id\. de reunión:.*?Código de acceso:.*?\./g, "")
-        .trim();
-    }
+  return text
+    .replace(/\\,/g, ",")
+    .replace(/\\n/g, " ")
+    .replace(/\n/g, " ")
+    .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "")
+    .replace(/Unirse a la reunión ahora<.*?>/g, "")
+    .replace(/Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+/g, "")
+    .replace(/Para organizadores:.*?Opciones de la reunión/g, "")
+    .replace(/Join the meeting now<.*?>/g, "")
+    .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "")
+    .replace(/Passcode:\s*\w+/g, "")
+    .replace(/For organizers:.*?__/g, "")
+    .replace(/_{10,}/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/<.*?>/g, "") // Elimina todos los enlaces HTML
+    .replace(/https?:\/\/[^\s]+/g, "") // Elimina enlaces http y https
+    .replace(/\S+@\S+\.\S+/g, "")
+    .replace(/No suele recibir correo electrónico de/g, "")
+    .replace(/Porqué es esto importante.*?/g, "")
+    .replace(/No sienta la ?obligación de.*?laboral\./g, "")
+    .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
+      if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
+        return "";
+      }
+      return match;
+    })
+    .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
+    .replace(/Updated meeting details:.*?Location/g, "")
+    .replace(/Sent by Microsoft Exchange Online/g, "")
+    .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
+    .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
+    .trim();
+}
+
 
     function formatICSDate(dateStr) {
       if (!dateStr) return null;
