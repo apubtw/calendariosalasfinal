@@ -476,41 +476,48 @@
     }
 
     function cleanRequerimientos(text) {
-      return text
-        .replace(/\\,/g, ",") // Reemplaza \, por ,
-        .replace(/\\n/g, "\n") // Reemplaza \n por salto de línea real
-        .replace(/\n/g, "\n") // Asegura que los saltos de línea se mantengan
-        .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "") // Elimina "Microsoft Teams Need help?" y los enlaces
-        .replace(/Unirse a la reunión ahora<.*?>/g, "") // Elimina el texto "Unirse a la reunión ahora<enlace>"
-        .replace(/Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+/g, "") // Elimina "Id. de reunión" y "Código de acceso"
-        .replace(/Para organizadores:.*?Opciones de la reunión/g, "") // Elimina "Para organizadores"
-        .replace(/Join the meeting now<.*?>/g, "") // Elimina "Join the meeting now<enlace>"
-        .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "") // Elimina "Meeting ID" y "Passcode"
-        .replace(/Passcode:\s*\w+/g, "") // Elimina "Passcode" y su contenido
-        .replace(/For organizers:.*?__/g, "") // Elimina cualquier texto relacionado con "For organizers:"
-        .replace(/_{10,}/g, "") // Elimina cadenas de guiones bajos
-        .replace(/\s{2,}/g, " ") // Reemplaza múltiples espacios consecutivos por uno solo
-        .replace(/<.*?>/g, "") // Elimina cualquier enlace HTML
-        .replace(/\S+@\S+\.\S+/g, "") // Elimina direcciones de correo electrónico
-        .replace(/No suele recibir correo electrónico de/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-        .replace(/Porqué es esto importante.*?/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-        .replace(/No sienta la ?obligación de.*?laboral\./g, "") // Elimina "No sienta la obligación de" y el texto completo
-        .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
-          if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
-            return "";
-          }
-          return match;
-        }) // Elimina posibles IDs alfanuméricos
-        .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
-        .replace(/Updated meeting details:.*?Location/g, "")
-        .replace(/Sent by Microsoft Exchange Online/g, "")
-        .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
-        .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
-        .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
-        .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
-        .replace(/Requerimientos:\s*/g, "") // Aquí eliminamos sólo el texto "Requerimientos:" pero no tocamos la descripción
-        .trim(); // Elimina espacios al principio y al final
-    }
+  return text
+    .replace(/\\,/g, ",") // Reemplaza \, por ,
+    .replace(/\\n/g, "\n") // Reemplaza \n por salto de línea real
+    .replace(/\n/g, "\n") // Asegura que los saltos de línea se mantengan
+    .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "") // Elimina "Microsoft Teams Need help?" y los enlaces
+    .replace(/Unirse a la reunión ahora<.*?>/g, "") // Elimina el texto "Unirse a la reunión ahora<enlace>"
+    .replace(/Id\. de reunión: \d+(?: \d+)+/g, "") // Elimina "Id. de reunión: 233 093369 143"
+    .replace(/Código de acceso: \w+/g, "") // Elimina "Código de acceso: XB9RR6uP"
+    .replace(/Para organizadores:.*?Opciones de la reunión/g, "") // Elimina "Para organizadores"
+    .replace(/Join the meeting now<.*?>/g, "") // Elimina "Join the meeting now<enlace>"
+    .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "") // Elimina "Meeting ID" y "Passcode"
+    .replace(/Passcode:\s*\w+/g, "") // Elimina "Passcode" y su contenido
+    .replace(/For organizers:.*?__/g, "") // Elimina cualquier texto relacionado con "For organizers:"
+    .replace(/_{10,}/g, "") // Elimina cadenas de guiones bajos
+    .replace(/\s{2,}/g, " ") // Reemplaza múltiples espacios consecutivos por uno solo
+    .replace(/<.*?>/g, "") // Elimina cualquier enlace HTML
+    .replace(/\S+@\S+\.\S+/g, "") // Elimina direcciones de correo electrónico
+    .replace(/No suele recibir correo electrónico de/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
+    .replace(/Porqué es esto importante.*?/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
+    .replace(/No sienta la ?obligación de.*?laboral\./g, "") // Elimina "No sienta la obligación de" y el texto completo
+    .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
+      if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
+        return "";
+      }
+      return match;
+    }) // Elimina posibles IDs alfanuméricos
+    .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
+    .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "") // Elimina enlaces de Teams con ID y "For : Meeting"
+    .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "") // Elimina "ID" seguido de números y "For : Meeting"
+    .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
+    .replace(/Updated meeting details:.*?Location/g, "")
+    .replace(/Sent by Microsoft Exchange Online/g, "")
+    .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
+    .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
+    .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
+    .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
+    .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "") // Elimina "Sent by Microsoft 365 Your meeting was found to be out of date and has been automatically updated."
+    .replace(/Requerimientos:\s*/g, "") // Aquí eliminamos sólo el texto "Requerimientos:" pero no tocamos la descripción
+    .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "") // Elimina la parte en comillas
+    .trim(); // Elimina espacios al principio y al final
+}
+
 
     function formatICSDate(dateStr) {
       if (!dateStr) return null;
