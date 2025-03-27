@@ -61,6 +61,8 @@
         "http://outlook.office365.com/owa/calendar/854f687d101745b481c3892f5ff6f2d1@uc.cl/38f78a1f13d1434e8eb91d645dd4547810658958581129542550/calendar.ics",
       "FHGCP SALA HUMANIDADES 4 👤4":
         "http://outlook.office365.com/owa/calendar/bc6e41c921704d3293d6ddcc403062cc@uc.cl/64b37ec71d7148859fc10832f63b219c1386908969546599371/calendar.ics",
+        "FHGCP_PASILLO_2DO_PISO_👤40":
+        "http://outlook.office365.com/owa/calendar/24e8cbb9d1424f5d81f3c5d20f9953fd@uc.cl/5c8857a5528e4661aa906d6bc180eb4a6372096918242644660/calendar.ics",
       "FHGCP SALA POSTGRADO HISTORIA 👤10":
         "http://outlook.office365.com/owa/calendar/266599e201af412ea7dae37017d005d9@uc.cl/192bfa5db8de4aa2ac7349d5f0c8b18715751757247432996149/calendar.ics",
       "FHGCP SALA REUNIONES A 7 👤10":
@@ -109,6 +111,8 @@
         "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-HUMANIDADES-3@uc.cl&location=FHGCP-HUMANIDADES-3@uc.cl",
       "FHGCP_SALA_HUMANIDADES_4_👤4":
         "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-HUMANIDADES-4@uc.cl&location=FHGCP-HUMANIDADES-4@uc.cl",
+        "FHGCP_PASILLO_2DO_PISO_👤40":
+        "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-PASILLO-2DO-PISO-FACULTAD@uc.cl&location=FHGCP-PASILLO-2DO-PISO-FACULTAD@uc.cl",
       "FHGCP_LABORATORIO_DE_GEOMATICA_👤14":
         "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-LABORATORIO-DE-GEOMATICA@uc.cl&location=FHGCP-LABORATORIO-DE-GEOMATICA@uc.cl",
       FHGCP_LABORATORIO_HISTORIA_DIGITAL:
@@ -361,7 +365,7 @@
           }
         }
       });
-//nuevo cambio
+      //nuevo cambio
       // Muestra los eventos procesados
       displayEvents(events);
     }
@@ -418,6 +422,18 @@
 
       return recurrenceEvents;
     }
+    function debugEventCount(events) {
+      console.log(`Total de eventos cargados del archivo ICS: ${events.length}`);
+
+      const displayedEvents = calendar.getEvents();
+      console.log(`Total de eventos mostrados en el calendario: ${displayedEvents.length}`);
+
+      if (events.length !== displayedEvents.length) {
+        console.warn(
+          `Hay una discrepancia entre los eventos cargados (${events.length}) y los eventos mostrados (${displayedEvents.length}).`
+        );
+      }
+    }
 
     function displayEvents(events) {
       calendar.removeAllEvents();
@@ -473,50 +489,51 @@
           console.error(`Error processing event #${index + 1}:`, error);
         }
       });
+      debugEventCount(events);
     }
 
     function cleanRequerimientos(text) {
-  return text
-    .replace(/\\,/g, ",") // Reemplaza \, por ,
-    .replace(/\\n/g, "\n") // Reemplaza \n por salto de línea real
-    .replace(/\n/g, "\n") // Asegura que los saltos de línea se mantengan
-    .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "") // Elimina "Microsoft Teams Need help?" y los enlaces
-    .replace(/Unirse a la reunión ahora<.*?>/g, "") // Elimina el texto "Unirse a la reunión ahora<enlace>"
-    .replace(/Id\. de reunión: \d+(?: \d+)+/g, "") // Elimina "Id. de reunión: 233 093369 143"
-    .replace(/Código de acceso: \w+/g, "") // Elimina "Código de acceso: XB9RR6uP"
-    .replace(/Para organizadores:.*?Opciones de la reunión/g, "") // Elimina "Para organizadores"
-    .replace(/Join the meeting now<.*?>/g, "") // Elimina "Join the meeting now<enlace>"
-    .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "") // Elimina "Meeting ID" y "Passcode"
-    .replace(/Passcode:\s*\w+/g, "") // Elimina "Passcode" y su contenido
-    .replace(/For organizers:.*?__/g, "") // Elimina cualquier texto relacionado con "For organizers:"
-    .replace(/_{10,}/g, "") // Elimina cadenas de guiones bajos
-    .replace(/\s{2,}/g, " ") // Reemplaza múltiples espacios consecutivos por uno solo
-    .replace(/<.*?>/g, "") // Elimina cualquier enlace HTML
-    .replace(/\S+@\S+\.\S+/g, "") // Elimina direcciones de correo electrónico
-    .replace(/No suele recibir correo electrónico de/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-    .replace(/Porqué es esto importante.*?/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-    .replace(/No sienta la ?obligación de.*?laboral\./g, "") // Elimina "No sienta la obligación de" y el texto completo
-    .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
-      if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
-        return "";
-      }
-      return match;
-    }) // Elimina posibles IDs alfanuméricos
-    .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
-    .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "") // Elimina enlaces de Teams con ID y "For : Meeting"
-    .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "") // Elimina "ID" seguido de números y "For : Meeting"
-    .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
-    .replace(/Updated meeting details:.*?Location/g, "")
-    .replace(/Sent by Microsoft Exchange Online/g, "")
-    .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
-    .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
-    .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
-    .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
-    .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "") // Elimina "Sent by Microsoft 365 Your meeting was found to be out of date and has been automatically updated."
-    .replace(/Requerimientos:\s*/g, "") // Aquí eliminamos sólo el texto "Requerimientos:" pero no tocamos la descripción
-    .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "") // Elimina la parte en comillas
-    .trim(); // Elimina espacios al principio y al final
-}
+      return text
+        .replace(/\\,/g, ",") // Reemplaza \, por ,
+        .replace(/\\n/g, "\n") // Reemplaza \n por salto de línea real
+        .replace(/\n/g, "\n") // Asegura que los saltos de línea se mantengan
+        .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "") // Elimina "Microsoft Teams Need help?" y los enlaces
+        .replace(/Unirse a la reunión ahora<.*?>/g, "") // Elimina el texto "Unirse a la reunión ahora<enlace>"
+        .replace(/Id\. de reunión: \d+(?: \d+)+/g, "") // Elimina "Id. de reunión: 233 093369 143"
+        .replace(/Código de acceso: \w+/g, "") // Elimina "Código de acceso: XB9RR6uP"
+        .replace(/Para organizadores:.*?Opciones de la reunión/g, "") // Elimina "Para organizadores"
+        .replace(/Join the meeting now<.*?>/g, "") // Elimina "Join the meeting now<enlace>"
+        .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "") // Elimina "Meeting ID" y "Passcode"
+        .replace(/Passcode:\s*\w+/g, "") // Elimina "Passcode" y su contenido
+        .replace(/For organizers:.*?__/g, "") // Elimina cualquier texto relacionado con "For organizers:"
+        .replace(/_{10,}/g, "") // Elimina cadenas de guiones bajos
+        .replace(/\s{2,}/g, " ") // Reemplaza múltiples espacios consecutivos por uno solo
+        .replace(/<.*?>/g, "") // Elimina cualquier enlace HTML
+        .replace(/\S+@\S+\.\S+/g, "") // Elimina direcciones de correo electrónico
+        .replace(/No suele recibir correo electrónico de/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
+        .replace(/Porqué es esto importante.*?/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
+        .replace(/No sienta la ?obligación de.*?laboral\./g, "") // Elimina "No sienta la obligación de" y el texto completo
+        .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
+          if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
+            return "";
+          }
+          return match;
+        }) // Elimina posibles IDs alfanuméricos
+        .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
+        .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "") // Elimina enlaces de Teams con ID y "For : Meeting"
+        .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "") // Elimina "ID" seguido de números y "For : Meeting"
+        .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
+        .replace(/Updated meeting details:.*?Location/g, "")
+        .replace(/Sent by Microsoft Exchange Online/g, "")
+        .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
+        .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
+        .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
+        .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
+        .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "") // Elimina "Sent by Microsoft 365 Your meeting was found to be out of date and has been automatically updated."
+        .replace(/Requerimientos:\s*/g, "") // Aquí eliminamos sólo el texto "Requerimientos:" pero no tocamos la descripción
+        .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "") // Elimina la parte en comillas
+        .trim(); // Elimina espacios al principio y al final
+    }
 
 
     function formatICSDate(dateStr) {
