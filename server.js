@@ -44,7 +44,7 @@ const icsUrls = {
   "FHGCP SALA POSTGRADO HISTORIA 👤10":
     "http://outlook.office365.com/owa/calendar/266599e201af412ea7dae37017d005d9@uc.cl/192bfa5db8de4aa2ac7349d5f0c8b18715751757247432996149/calendar.ics",
   "FHGCP SALA REUNIONES A 7 👤10":
-    "http://outlook.office365.com/owa/calendar/e02e143a5a9046a09b1a3617d9ce77a1@uc.cl/d3162863aa504a359b72db03c50a1b6110851382597755342633/calendar.ics",
+    "http://outlook.office365.com/owa/calendar/e02e143a5a9046a09b1a3617d9ce77a1@uc.cl/bef4c7d5707045c98d25053e2a8dc84710273173691635514074/calendar.ics",
   "FHGCP SALA USOS MULTIPLES 👤22":
     "http://outlook.office365.com/owa/calendar/00a05e5068504048b8219caa353bb694@uc.cl/e30ae1041cf641ae91784c7b661367306773761822066238338/calendar.ics",
   "FHGCP SEMINARIO 1 👤20":
