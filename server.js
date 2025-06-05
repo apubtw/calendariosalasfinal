@@ -15,8 +15,8 @@ const icsUrls = {
     "http://outlook.office365.com/owa/calendar/e857cbdab6ea47749bc06e0adc9dbb73@uc.cl/d0a1d7bd96104de8a2885a139f3f52a812222981494403014183/calendar.ics",
   "FHGCP DECANATO SALA CONSEJO FACULTAD 👤25":
     "http://outlook.office365.com/owa/calendar/f03c42313f964c819b4aecd10a62f81f@uc.cl/46e74d9c80a945e384f3971b525ea76e11052745610678742020/calendar.ics",
-  "FHGCP DECANATO SALA REUNIONES 👤10":
-    "http://outlook.office365.com/owa/calendar/0d1da151aef7420190fb315b6d4dfadc@uc.cl/7317cf9f67ea4dd8b91c5daa82d595867171139558961955839/calendar.ics",
+  /*"FHGCP DECANATO SALA REUNIONES 👤10":
+    "http://outlook.office365.com/owa/calendar/0d1da151aef7420190fb315b6d4dfadc@uc.cl/7317cf9f67ea4dd8b91c5daa82d595867171139558961955839/calendar.ics",*/
   "FHGCP LABORATORIO DE GEOMATICA 👤14":
     "http://outlook.office365.com/owa/calendar/046148a2e92a42f9a6b2d31973ec711f@uc.cl/b8812806946548e79cc1ccdda6926e3c9063704853347367516/calendar.ics",
   /*"FHGCP SALA ATACAMA (BLOQUEADA)":
