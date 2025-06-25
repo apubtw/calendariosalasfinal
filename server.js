@@ -9,18 +9,12 @@ const port = 3000;
 
 // Define your ICS URLs mapping
 const icsUrls = {
-  /*"FHGCP LABORATORIO HISTORIA DIGITAL (BLOQUEADA)":
-"http://outlook.office365.com/owa/calendar/0f52822f5d1443ca9da46abe398d3cad@uc.cl/bd3e7f72cc844f38a9cc0d517cd0660616195049527368204434/calendar.ics",*/
   "FHGCP DECANATO AUDITORIO 👤126":
     "http://outlook.office365.com/owa/calendar/e857cbdab6ea47749bc06e0adc9dbb73@uc.cl/d0a1d7bd96104de8a2885a139f3f52a812222981494403014183/calendar.ics",
   "FHGCP DECANATO SALA CONSEJO FACULTAD 👤25":
     "http://outlook.office365.com/owa/calendar/f03c42313f964c819b4aecd10a62f81f@uc.cl/46e74d9c80a945e384f3971b525ea76e11052745610678742020/calendar.ics",
-  /*"FHGCP DECANATO SALA REUNIONES 👤10":
-    "http://outlook.office365.com/owa/calendar/0d1da151aef7420190fb315b6d4dfadc@uc.cl/7317cf9f67ea4dd8b91c5daa82d595867171139558961955839/calendar.ics",*/
   "FHGCP LABORATORIO DE GEOMATICA 👤14":
     "http://outlook.office365.com/owa/calendar/046148a2e92a42f9a6b2d31973ec711f@uc.cl/b8812806946548e79cc1ccdda6926e3c9063704853347367516/calendar.ics",
-  /*"FHGCP SALA ATACAMA (BLOQUEADA)":
-"http://outlook.office365.com/owa/calendar/b5117cef0ec94991a099c3561b707736@uc.cl/1db1373dffb64e47a946c80071e8e38d5796220034483856327/calendar.ics",*/
   "FHGCP SALA CONSEJO CIENCIA POLITICA 👤12":
     "http://outlook.office365.com/owa/calendar/bd828681f6ba4d2aa117aafc856c98f9@uc.cl/bce644202ac3415e9ef3d79469981e4f15364390778314373260/calendar.ics",
   "FHGCP SALA CONSEJO GEOGRAFIA 👤8":
@@ -31,14 +25,6 @@ const icsUrls = {
     "http://outlook.office365.com/owa/calendar/22c286212fae46b994a3ce3a8de2065c@uc.cl/11b08aaa23b1496a975dc8e0d4edba8017693345453152152852/calendar.ics",
   "FHGCP SALA DOCTORADO GEOGRAFIA 👤10":
     "http://outlook.office365.com/owa/calendar/0253785e99494b18859b3cd9020aa93a@uc.cl/643ef88f85324b359beb359e913e26c66644004865990384362/calendar.ics",
-  "FHGCP SALA HUMANIDADES 1 👤4":
-    "http://outlook.office365.com/owa/calendar/235b2e37013147b0999557e26748d96b@uc.cl/c8e962a0d7d4479d81ae6fa110f8f65a16714046150349654577/calendar.ics",
-  "FHGCP SALA HUMANIDADES 2 👤4":
-    "http://outlook.office365.com/owa/calendar/598fea8e95f543ba8b521b49fc384ba2@uc.cl/4ca8de726ca9473190872a6735eb84a616695268912745945723/calendar.ics",
-  "FHGCP SALA HUMANIDADES 3 👤4":
-    "http://outlook.office365.com/owa/calendar/854f687d101745b481c3892f5ff6f2d1@uc.cl/37517875cf5b41adb1b4e7739d74c0ff17268046534947360727/calendar.ics",
-  "FHGCP SALA HUMANIDADES 4 👤4":
-    "http://outlook.office365.com/owa/calendar/bc6e41c921704d3293d6ddcc403062cc@uc.cl/c8c090193b814a568b0b810498ac3d9d5280369941007072002/calendar.ics",
   "FHGCP_PASILLO_2DO_PISO_👤40":
     "http://outlook.office365.com/owa/calendar/24e8cbb9d1424f5d81f3c5d20f9953fd@uc.cl/5c8857a5528e4661aa906d6bc180eb4a6372096918242644660/calendar.ics",
   "FHGCP SALA POSTGRADO HISTORIA 👤10":
@@ -60,10 +46,7 @@ const icsUrls = {
   "FHGCP SEMINARIO FACULTAD 👤41":
     "http://outlook.office365.com/owa/calendar/cb9d40caf77c43629fdb9f7cb9249afb@uc.cl/2f99deb939944c9a9de027ccc2e821497528731868425315838/calendar.ics",
   "FHGCP TERRAZA 👤50":
-    "http://outlook.office365.com/owa/calendar/3033c0791e414b4fa60cc29a059e4037@uc.cl/7e8ac378f3d04f58b14b7a1a3787b8174085635423058249854/calendar.ics",
-  /*"FHGCP SALA PATAGONIA (BLOQUEADA)":
-"http://outlook.office365.com/owa/calendar/b32f2d9add9849fdb80f435fccfda899@uc.cl/ab223c3d83b7461fa7ad0da90adb50771180359976278031607/calendar.ics",*/
-};
+    "http://outlook.office365.com/owa/calendar/3033c0791e414b4fa60cc29a059e4037@uc.cl/7e8ac378f3d04f58b14b7a1a3787b8174085635423058249854/calendar.ics",};
 
 
 app.use(morgan("combined")); // Use morgan for logging
