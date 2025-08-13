@@ -121,268 +121,359 @@
         "https://outlook.office.com/calendar/0/deeplink/compose?to=FHGCP-TERRAZA@uc.cl&location=FHGCP-TERRAZA@uc.cl",
     };
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const calendarEl = document.getElementById("calendar");
-      const modal = document.getElementById("eventModal");
-      const modalClose = document.querySelector(".close");
-      function isMobileDevice() {
-        return /Mobi|Android/i.test(navigator.userAgent);
-      }
+      // =========================
+  // Helpers globales
+  // =========================
+  function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
+  }
+  function fmtHora(d) {
+    return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  }
+  function fmtFechaHora(d) {
+    return d.toLocaleString("es-ES", { dateStyle: "full", timeStyle: "short" });
+  }
 
-      let headerToolbar, footerToolbar;
+  // Formateo robusto de fechas ICS
+  function formatICSDate(dateStr) {
+    if (!dateStr) return null;
+    dateStr = String(dateStr).trim();
 
-      if (isMobileDevice()) {
-        headerToolbar = {
-          left: "dayGridMonth,dayGridWeek,dayGridDay",
-          center: "",
-          right: "",
-        };
-        footerToolbar = {
-          left: "title",
-          center: "prev,today,next",
-          right: "",
-        };
-      } else {
-        headerToolbar = {
-          left: "dayGridMonth,dayGridWeek,dayGridDay",
-          center: "title,prev,today,next",
-          right: "",
-        };
-        footerToolbar = {
-          left: "",
-          center: "",
-          right: "",
-        };
-      }
+    // YYYYMMDD (all-day)
+    if (/^\d{8}$/.test(dateStr)) {
+      // Medianoche local
+      return new Date(
+        `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}T00:00:00`
+      );
+    }
 
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        firstDay: 1,
-        initialView: "dayGridMonth",
-        locale: "es",
-        headerToolbar: headerToolbar,
-        footerToolbar: footerToolbar,
-        buttonText: {
-          today: "Hoy",
-          month: "Mes",
-          week: "Sem",
-          day: "Día",
-        },
-        eventClick: function (info) {
+    // YYYYMMDDTHHMMSS con/sin Z
+    const dtMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
+    if (dtMatch) {
+      const out =
+        dateStr.slice(0, 4) + "-" +
+        dateStr.slice(4, 6) + "-" +
+        dateStr.slice(6, 8) + "T" +
+        dateStr.slice(9, 11) + ":" +
+        dateStr.slice(11, 13) + ":" +
+        dateStr.slice(13, 15) +
+        (dtMatch[2] ? "Z" : "");
+      return new Date(out);
+    }
 
-          document.getElementById("modalTitle").textContent = info.event.title;
-          document.getElementById("modalStart").textContent = info.event.start.toLocaleString("es-ES", {
-            dateStyle: "full",
-            timeStyle: "short",
-          });
-          document.getElementById("modalEnd").textContent = info.event.end
-            ? info.event.end.toLocaleString("es-ES", { dateStyle: "full", timeStyle: "short" })
-            : "N/A";
-          document.getElementById("modalDescription").textContent = info.event.extendedProps.description || "Sin descripción";
-          document.getElementById("modalLocation").textContent = info.event.extendedProps.location || "Sin ubicación";
-          document.getElementById("modalRequirements").textContent = info.event.extendedProps.requerimientos || "Sin requerimientos";
+    // ISO (incluye milisegundos o zona) o con guiones
+    if (dateStr.includes("-")) {
+      return new Date(dateStr);
+    }
 
-          modal.style.display = "block";
-        },
-        eventContent: function (arg) {
-          const date = arg.event.start;
-          const dateEnd = arg.event.end;
+    return null;
+  }
 
-          const isAllDayEvent =
-            date.getHours() === 0 &&
-            date.getMinutes() === 0 &&
-            dateEnd.getHours() === 0 &&
-            dateEnd.getMinutes() === 0;
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+    const modal = document.getElementById("eventModal");
+    const modalClose = document.querySelector(".close");
 
-          const formattedTime = isAllDayEvent
-            ? "Todo el Día"
-            : date.toLocaleTimeString("es-ES", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-          const formattedTimeEnd = isAllDayEvent
-            ? ""
-            : dateEnd.toLocaleTimeString("es-ES", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
+    function isMobileDevice() {
+      return /Mobi|Android/i.test(navigator.userAgent);
+    }
 
-          return {
-            html: `
-      <div style="color: black; font-size: 14px;">
-        <br>${formattedTime} ${formattedTimeEnd ? `- ${formattedTimeEnd}` : ""}<br>${arg.event.title}
-      </div>
-    `,
-          };
-        }
-        ,
-      });
+    let headerToolbar, footerToolbar;
 
-      calendar.render();
-
-      const toolbar = document.querySelector(".fc-toolbar-chunk:nth-child(3)");
-
-      const select = document.createElement("select");
-      select.id = "calendarSelector";
-      const texto = document.createElement("span");
-      texto.id = "textCampo";
-      texto.textContent = "Sala:";
-
-      const reservationButton = document.createElement("button");
-      reservationButton.id = "reservationButton";
-      reservationButton.textContent = "RESERVA";
-      reservationButton.onclick = function () {
-        const selectedCalendar = select.value;
-        const formattedCalendar = selectedCalendar.replace(/ /g, "_").toUpperCase();
-
-        if (reservationLinks[formattedCalendar]) {
-          window.open(reservationLinks[formattedCalendar], "_blank");
-        } else {
-          console.log("No se encontró un enlace de reserva para el calendario seleccionado.");
-        }
+    if (isMobileDevice()) {
+      headerToolbar = {
+        left: "dayGridMonth,dayGridWeek,dayGridDay",
+        center: "",
+        right: "",
       };
-
-      select.addEventListener("change", function () {
-        const selectedCalendar = select.value;
-        if (selectedCalendar) {
-          loadICS(selectedCalendar);
-        }
-      });
-
-      Object.keys(icsUrls).forEach((calendarName) => {
-        const option = document.createElement("option");
-        option.value = calendarName;
-        option.textContent = calendarName.replace(/_/g, " ");
-        select.appendChild(option);
-      });
-
-      toolbar.appendChild(texto);
-      toolbar.appendChild(select);
-      toolbar.appendChild(reservationButton);
-
-      loadICS(Object.keys(icsUrls)[0]);
-
-      modalClose.onclick = function () {
-        modal.style.display = "none";
+      footerToolbar = {
+        left: "title",
+        center: "prev,today,next",
+        right: "",
       };
-
-      window.onclick = function (event) {
-        if (event.target === modal) {
-          modal.style.display = "none";
-        }
+    } else {
+      headerToolbar = {
+        left: "dayGridMonth,dayGridWeek,dayGridDay",
+        center: "title,prev,today,next",
+        right: "",
       };
+      footerToolbar = {
+        left: "",
+        center: "",
+        right: "",
+      };
+    }
+
+    // Nota: se asume que "calendar" es global como en tu versión
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      firstDay: 1,
+      initialView: "dayGridMonth",
+      locale: "es",
+      headerToolbar: headerToolbar,
+      footerToolbar: footerToolbar,
+      buttonText: {
+        today: "Hoy",
+        month: "Mes",
+        week: "Sem",
+        day: "Día",
+      },
+
+      eventClick: function (info) {
+        const { event } = info;
+
+        document.getElementById("modalTitle").textContent = event.title || "(sin título)";
+
+        const tStart = isValidDate(event.start) ? fmtFechaHora(event.start) : "N/A";
+        const tEnd = isValidDate(event.end) ? fmtFechaHora(event.end) : "N/A";
+
+        document.getElementById("modalStart").textContent = tStart;
+        document.getElementById("modalEnd").textContent = tEnd;
+
+        document.getElementById("modalDescription").textContent =
+          event.extendedProps?.description || "Sin descripción";
+
+        document.getElementById("modalLocation").textContent =
+          event.extendedProps?.location || "Sin ubicación";
+
+        document.getElementById("modalRequirements").textContent =
+          event.extendedProps?.requerimientos || "Sin requerimientos";
+
+        modal.style.display = "block";
+      },
+
+      eventContent: function (arg) {
+        const ev = arg.event;
+        const start = ev.start;
+        const end = ev.end;
+
+        // Si no hay fecha de inicio válida, no intentes formatear horas
+        if (!isValidDate(start)) {
+          const titulo = ev.title || "(sin título)";
+          return { html: `<div style="color:black;font-size:14px;"><br>${titulo}</div>` };
+        }
+
+        // Confiar primero en ev.allDay
+        const isAllDayEvent =
+          ev.allDay === true ||
+          (
+            isValidDate(start) &&
+            (!isValidDate(end) ||
+              (start.getHours() === 0 && start.getMinutes() === 0 &&
+               end?.getHours?.() === 0 && end?.getMinutes?.() === 0))
+          );
+
+        const formattedTime = isAllDayEvent ? "Todo el Día" : fmtHora(start);
+        const formattedTimeEnd = (!isAllDayEvent && isValidDate(end)) ? fmtHora(end) : "";
+
+        const titulo = ev.title || "(sin título)";
+
+        return {
+          html: `
+            <div style="color:black;font-size:14px;">
+              <br>${formattedTime}${formattedTimeEnd ? ` - ${formattedTimeEnd}` : ""}<br>${titulo}
+            </div>
+          `
+        };
+      },
     });
 
-    function loadICS(roomName) {
-      fetch(`/ics/${roomName}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text();
-        })
-        .then((data) => {
-          parseICS(data);
-          setTimeout(() => {
-            const todayCell = document.querySelector(".fc-daygrid-day.fc-day-today");
-            if (todayCell) {
-              todayCell.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }, 100);
-        })
-        .catch((error) => {
-          console.error("Hubo un problema con la carga del archivo .ics:", error);
-        });
-    }
+    calendar.render();
 
-function parseICS(data) {
-  const events = [];
-  const lines = data.split(/\r?\n/);
-  let currentEvent = null;
-  let previousKey = null;
+    const toolbar = document.querySelector(".fc-toolbar-chunk:nth-child(3)");
 
-  lines.forEach((line) => {
-    if (line.startsWith(" ") && currentEvent && previousKey) {
-      currentEvent[previousKey] += line.trim();
-    } else if (line.startsWith("BEGIN:VEVENT")) {
-      currentEvent = {};
-    } else if (line.startsWith("END:VEVENT")) {
-      if (currentEvent && (currentEvent["DTSTART"] || currentEvent["DTSTART;VALUE=DATE"]) &&
-          (currentEvent["DTEND"] || currentEvent["DTEND;VALUE=DATE"])) {
+    const select = document.createElement("select");
+    select.id = "calendarSelector";
+    const texto = document.createElement("span");
+    texto.id = "textCampo";
+    texto.textContent = "Sala:";
 
-        // Detección adicional de eventos allDay
-        if (
-          currentEvent["DTSTART;VALUE=DATE"] ||
-          currentEvent["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE"
-        ) {
-          currentEvent.allDay = true;
-        }
+    const reservationButton = document.createElement("button");
+    reservationButton.id = "reservationButton";
+    reservationButton.textContent = "RESERVA";
+    reservationButton.onclick = function () {
+      const selectedCalendar = select.value;
+      const formattedCalendar = selectedCalendar.replace(/ /g, "_").toUpperCase();
 
-        if (currentEvent["RRULE"]) {
-          const recurrenceEvents = generateRecurrenceEvents(currentEvent);
-          events.push(...recurrenceEvents);
-        } else {
-          events.push(currentEvent);
-        }
-
+      if (reservationLinks[formattedCalendar]) {
+        window.open(reservationLinks[formattedCalendar], "_blank");
       } else {
-        console.warn("⚠️ Evento descartado por falta de fechas:", currentEvent);
+        console.log("No se encontró un enlace de reserva para el calendario seleccionado.");
       }
-      currentEvent = null;
-    } else if (currentEvent) {
-      const separatorIndex = line.indexOf(":");
-      const key = line.substring(0, separatorIndex);
-      const value = line.substring(separatorIndex + 1);
+    };
 
-      if (key && value) {
-        if (key.includes("TZID")) {
-          const keyParts = key.split(";");
-          currentEvent[keyParts[0]] = value;
-          previousKey = keyParts[0];
-        } else {
-          currentEvent[key] = value;
-          previousKey = key;
-        }
-
-        // Detección temprana del campo allDay
-        if (key === "X-MICROSOFT-CDO-ALLDAYEVENT" && value === "TRUE") {
-          currentEvent.allDay = true;
-        }
+    select.addEventListener("change", function () {
+      const selectedCalendar = select.value;
+      if (selectedCalendar) {
+        loadICS(selectedCalendar);
       }
-    }
+    });
+
+    Object.keys(icsUrls).forEach((calendarName) => {
+      const option = document.createElement("option");
+      option.value = calendarName;
+      option.textContent = calendarName.replace(/_/g, " ");
+      select.appendChild(option);
+    });
+
+    toolbar.appendChild(texto);
+    toolbar.appendChild(select);
+    toolbar.appendChild(reservationButton);
+
+    loadICS(Object.keys(icsUrls)[0]);
+
+    modalClose.onclick = function () {
+      modal.style.display = "none";
+    };
+
+    window.onclick = function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
   });
-  displayEvents(events);
-}
 
+  function loadICS(roomName) {
+    fetch(`/ics/${roomName}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        parseICS(data);
+        setTimeout(() => {
+          const todayCell = document.querySelector(".fc-daygrid-day.fc-day-today");
+          if (todayCell) {
+            todayCell.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      })
+      .catch((error) => {
+        console.error("Hubo un problema con la carga del archivo .ics:", error);
+      });
+  }
 
-    function generateRecurrenceEvents(event) {
-      const recurrenceEvents = [];
-      const rrule = event["RRULE"];
-      const startDate = formatICSDate(event["DTSTART"]);
-      const endDate = formatICSDate(event["DTEND"]);
+  function parseICS(data) {
+    const events = [];
+    const lines = data.split(/\r?\n/);
+    let currentEvent = null;
+    let previousKey = null;
 
-      const ruleParts = rrule.split(";");
-      let frequency = "DAILY",
+    lines.forEach((line) => {
+      if (line.startsWith(" ") && currentEvent && previousKey) {
+        // Continuación de línea (folding)
+        currentEvent[previousKey] += line.trim();
+      } else if (line.startsWith("BEGIN:VEVENT")) {
+        currentEvent = {};
+      } else if (line.startsWith("END:VEVENT")) {
+        if (
+          currentEvent &&
+          (currentEvent["DTSTART"] || currentEvent["DTSTART;VALUE=DATE"])
+          // ACEPTAMOS eventos sin DTEND (común en ICS)
+        ) {
+          // Detección adicional de allDay (DATE o flag MS)
+          if (
+            currentEvent["DTSTART;VALUE=DATE"] ||
+            currentEvent["X-MICROSOFT-CDO-ALLDAYEVENT"] === "TRUE"
+          ) {
+            currentEvent.allDay = true;
+          }
+
+          if (currentEvent["RRULE"]) {
+            const recurrenceEvents = generateRecurrenceEvents(currentEvent);
+            events.push(...recurrenceEvents);
+          } else {
+            events.push(currentEvent);
+          }
+        } else {
+          console.warn("⚠️ Evento descartado por falta de DTSTART:", currentEvent);
+        }
+        currentEvent = null;
+      } else if (currentEvent) {
+        const separatorIndex = line.indexOf(":");
+        if (separatorIndex === -1) return; // línea no válida
+
+        const key = line.substring(0, separatorIndex);
+        const value = line.substring(separatorIndex + 1);
+
+        if (key && value) {
+          if (key.includes("TZID")) {
+            const keyParts = key.split(";");
+            currentEvent[keyParts[0]] = value;
+            previousKey = keyParts[0];
+          } else {
+            currentEvent[key] = value;
+            previousKey = key;
+          }
+
+          // Detección temprana de allDay
+          if (key === "X-MICROSOFT-CDO-ALLDAYEVENT" && value === "TRUE") {
+            currentEvent.allDay = true;
+          }
+        }
+      }
+    });
+
+    displayEvents(events);
+  }
+
+  function generateRecurrenceEvents(event) {
+    const recurrenceEvents = [];
+    const rrule = event["RRULE"];
+    const startDate = formatICSDate(event["DTSTART"]);
+    const endDate = event["DTEND"] ? formatICSDate(event["DTEND"]) : null;
+
+    if (!isValidDate(startDate)) {
+      console.warn("RRULE con DTSTART inválido, se omite:", event);
+      return recurrenceEvents;
+    }
+
+    const ruleParts = rrule.split(";");
+    let frequency = "DAILY",
         interval = 1,
         untilDate = null,
         byDays = [];
 
-      ruleParts.forEach((part) => {
-        const [key, value] = part.split("=");
-        if (key === "FREQ") frequency = value;
-        if (key === "UNTIL") untilDate = formatICSDate(value);
-        if (key === "INTERVAL") interval = parseInt(value);
-        if (key === "BYDAY") byDays = value.split(",");
-      });
+    ruleParts.forEach((part) => {
+      const [key, value] = part.split("=");
+      if (key === "FREQ") frequency = value;
+      if (key === "UNTIL") untilDate = formatICSDate(value);
+      if (key === "INTERVAL") interval = parseInt(value);
+      if (key === "BYDAY") byDays = value.split(",");
+    });
 
-      const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
-      const startDay = new Date(startDate).getDay();
+    const daysMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+    const startDay = new Date(startDate).getDay();
 
-      let currentDate = new Date(startDate);
-      const until = untilDate
-        ? new Date(untilDate)
-        : new Date(currentDate.getFullYear() + 1, 0, 1);
+    // Si no hay BYDAY y es semanal, usa el día del DTSTART
+    if (frequency === "WEEKLY" && byDays.length === 0) {
+      const inv = Object.entries(daysMap).find(([, v]) => v === startDay);
+      if (inv) byDays = [inv[0]];
+    }
 
-      while (currentDate <= until) {
+    let currentDate = new Date(startDate);
+    const until = isValidDate(untilDate)
+      ? new Date(untilDate)
+      : new Date(currentDate.getFullYear() + 1, 0, 1); // 1 año por defecto
+
+    while (currentDate <= until) {
+      if (frequency === "DAILY") {
+        const newEvent = {
+          DTSTART: currentDate.toISOString(),
+          DTEND: endDate
+            ? new Date(currentDate.getTime() + (endDate - startDate)).toISOString()
+            : null,
+          SUMMARY: event["SUMMARY"],
+          LOCATION: event["LOCATION"],
+          DESCRIPTION: event["DESCRIPTION"],
+        };
+        recurrenceEvents.push(newEvent);
+        currentDate.setDate(currentDate.getDate() + interval);
+        continue;
+      }
+
+      if (frequency === "WEEKLY") {
         byDays.forEach((day) => {
           const dayOfWeek = daysMap[day];
           const eventDate = new Date(currentDate);
@@ -393,7 +484,9 @@ function parseICS(data) {
           if (eventDate <= until && eventDate >= currentDate) {
             const newEvent = {
               DTSTART: eventDate.toISOString(),
-              DTEND: new Date(eventDate.getTime() + (endDate - startDate)).toISOString(),
+              DTEND: endDate
+                ? new Date(eventDate.getTime() + (endDate - startDate)).toISOString()
+                : null,
               SUMMARY: event["SUMMARY"],
               LOCATION: event["LOCATION"],
               DESCRIPTION: event["DESCRIPTION"],
@@ -402,171 +495,164 @@ function parseICS(data) {
           }
         });
         currentDate.setDate(currentDate.getDate() + 7 * interval);
+        continue;
       }
 
-      return recurrenceEvents;
-    }
-    function debugEventCount(events) {
-      console.log(`Total de eventos cargados del archivo ICS: ${events.length}`);
-
-      const displayedEvents = calendar.getEvents();
-      console.log(`Total de eventos mostrados en el calendario: ${displayedEvents.length}`);
-
-      if (events.length !== displayedEvents.length) {
-        console.warn(
-          `Hay una discrepancia entre los eventos cargados (${events.length}) y los eventos mostrados (${displayedEvents.length}).`
-        );
-      }
+      // Soporte mínimo para MONTHLY/YEARLY: cae en DAILY como fallback
+      currentDate.setDate(currentDate.getDate() + interval);
     }
 
-function displayEvents(events) {
-  calendar.removeAllEvents();
+    return recurrenceEvents;
+  }
 
-  events.forEach((event, index) => {
-    try {
-      const dtStart = event["DTSTART"] || event["DTSTART;VALUE=DATE"];
-      const dtEnd = event["DTEND"] || event["DTEND;VALUE=DATE"];
+  function debugEventCount(events) {
+    console.log(`Total de eventos cargados del archivo ICS: ${events.length}`);
 
-      if (!dtStart || !dtEnd) {
-        console.warn(`⚠️ Evento sin DTSTART o DTEND:`, event);
-        console.groupEnd();
-        return;
-      }
+    const displayedEvents = calendar.getEvents();
+    console.log(`Total de eventos mostrados en el calendario: ${displayedEvents.length}`);
 
-      const start = formatICSDate(dtStart);
-      const end = formatICSDate(dtEnd);
-      const description = event["SUMMARY"] || "Sin descripción";
-      const location = event["LOCATION"] || "Sin ubicación";
+    if (events.length !== displayedEvents.length) {
+      console.warn(
+        `Hay una discrepancia entre los eventos cargados (${events.length}) y los eventos mostrados (${displayedEvents.length}).`
+      );
+    }
+  }
 
-      const requerimientos = event["DESCRIPTION"]
-        ? cleanRequerimientos(event["DESCRIPTION"])
-        : "Sin requerimientos";
+  function displayEvents(events) {
+    calendar.removeAllEvents();
 
-      const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
-      const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
+    events.forEach((event, index) => {
+      try {
+        const dtStart = event["DTSTART"] || event["DTSTART;VALUE=DATE"];
+        const dtEnd   = event["DTEND"]   || event["DTEND;VALUE=DATE"]; // puede ser undefined
 
-      // Detección robusta de evento de día completo
-      const isAllDay =
-        event.allDay === true ||
-        event["DTSTART;VALUE=DATE"] !== undefined ||
-        event["DTEND;VALUE=DATE"] !== undefined ||
-        (/^\d{8}$/.test(dtStart) && /^\d{8}$/.test(dtEnd));
-
-      if (isAllDay) {
-        try {
-          calendar.addEvent({
-            title: event["SUMMARY"] || "Sin título",
-            start: start,
-            end: end,
-            allDay: true,
-          });
-        } catch (error) {
-          console.error("❌ Error agregando evento all-day:", event, error);
+        if (!dtStart) {
+          console.warn(`⚠️ Evento sin DTSTART:`, event);
+          return;
         }
-      } else {
-        calendar.addEvent({
-          title: description,
-          start: start,
-          end: end,
-          extendedProps: {
-            description: description,
-            location: location,
-            requerimientos: requerimientos
-          },
-          classNames: [classNames]
-        });
-      }
-    } catch (error) {
-      console.error(`❌ Error procesando evento #${index + 1}:`, error);
-    }
-  });
-  debugEventCount(events);
-}
 
+        const start = formatICSDate(dtStart);
+        let end     = dtEnd ? formatICSDate(dtEnd) : null;
 
+        if (!isValidDate(start)) {
+          console.warn(`⚠️ DTSTART inválido en evento #${index + 1}`, event);
+          return;
+        }
 
-    function cleanRequerimientos(text) {
-      return text
-        .replace(/\\,/g, ",") // Reemplaza \, por ,
-        .replace(/\\n/g, "\n") // Reemplaza \n por salto de línea real
-        .replace(/\n/g, "\n") // Asegura que los saltos de línea se mantengan
-        .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "") // Elimina "Microsoft Teams Need help?" y los enlaces
-        .replace(/Unirse a la reunión ahora<.*?>/g, "") // Elimina el texto "Unirse a la reunión ahora<enlace>"
-        .replace(/Id\. de reunión: \d+(?: \d+)+/g, "") // Elimina "Id. de reunión: 233 093369 143"
-        .replace(/Código de acceso: \w+/g, "") // Elimina "Código de acceso: XB9RR6uP"
-        .replace(/Para organizadores:.*?Opciones de la reunión/g, "") // Elimina "Para organizadores"
-        .replace(/Join the meeting now<.*?>/g, "") // Elimina "Join the meeting now<enlace>"
-        .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "") // Elimina "Meeting ID" y "Passcode"
-        .replace(/Passcode:\s*\w+/g, "") // Elimina "Passcode" y su contenido
-        .replace(/For organizers:.*?__/g, "") // Elimina cualquier texto relacionado con "For organizers:"
-        .replace(/_{10,}/g, "") // Elimina cadenas de guiones bajos
-        .replace(/\s{2,}/g, " ") // Reemplaza múltiples espacios consecutivos por uno solo
-        .replace(/<.*?>/g, "") // Elimina cualquier enlace HTML
-        .replace(/\S+@\S+\.\S+/g, "") // Elimina direcciones de correo electrónico
-        .replace(/No suele recibir correo electrónico de/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-        .replace(/Porqué es esto importante.*?/g, "") // Elimina la frase "Porqué es esto importante" y su contenido
-        .replace(/No sienta la ?obligación de.*?laboral\./g, "") // Elimina "No sienta la obligación de" y el texto completo
-        .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
-          if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
-            return "";
+        const description = event["SUMMARY"] || "Sin descripción";
+        const location = event["LOCATION"] || "Sin ubicación";
+
+        const requerimientos = event["DESCRIPTION"]
+          ? cleanRequerimientos(event["DESCRIPTION"])
+          : "Sin requerimientos";
+
+        const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
+        const classNames = busyStatus === "TENTATIVE" ? "tentative" : "busy";
+
+        // Detección robusta de evento de día completo
+        const isAllDay =
+          event.allDay === true ||
+          event["DTSTART;VALUE=DATE"] !== undefined ||
+          event["DTEND;VALUE=DATE"] !== undefined ||
+          (/^\d{8}$/.test(dtStart) && (!dtEnd || /^\d{8}$/.test(dtEnd)));
+
+        // Para allDay sin DTEND, ponemos end = start + 1 día (exclusive)
+        if (isAllDay && !isValidDate(end)) {
+          const tmp = new Date(start);
+          tmp.setDate(tmp.getDate() + 1);
+          end = tmp;
+        }
+
+        if (isAllDay) {
+          try {
+            calendar.addEvent({
+              title: event["SUMMARY"] || "Sin título",
+              start: start,
+              end: end,      // exclusive en allDay
+              allDay: true,
+              classNames: [classNames],
+              extendedProps: {
+                description: description,
+                location: location,
+                requerimientos: requerimientos
+              }
+            });
+          } catch (error) {
+            console.error("❌ Error agregando evento all-day:", event, error);
           }
-          return match;
-        }) // Elimina posibles IDs alfanuméricos
-        .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
-        .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "") // Elimina enlaces de Teams con ID y "For : Meeting"
-        .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "") // Elimina "ID" seguido de números y "For : Meeting"
-        .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
-        .replace(/Updated meeting details:.*?Location/g, "")
-        .replace(/Sent by Microsoft Exchange Online/g, "")
-        .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
-        .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
-        .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
-        .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
-        .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "") // Elimina "Sent by Microsoft 365 Your meeting was found to be out of date and has been automatically updated."
-        .replace(/Requerimientos:\s*/g, "") // Aquí eliminamos sólo el texto "Requerimientos:" pero no tocamos la descripción
-        .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "") // Elimina la parte en comillas
-        .trim(); // Elimina espacios al principio y al final
-    }
+        } else {
+          const startDateOk = isValidDate(start);
+          const endDateOk = isValidDate(end);
 
+          // FullCalendar exige start definido
+          if (!startDateOk) {
+            console.warn(`⚠️ Evento sin start válido`, event);
+            return;
+          }
 
-    function formatICSDate(dateStr) {
-      if (!dateStr) return null;
-
-      // Maneja fechas tipo "20250902" (sin hora) — día completo
-      if (/^\d{8}$/.test(dateStr)) {
-        return new Date(
-          `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}T00:00:00`
-        );
+          calendar.addEvent({
+            title: description,
+            start: start,
+            end: endDateOk ? end : undefined, // si no hay end, no lo pases
+            allDay: false,
+            extendedProps: {
+              description: description,
+              location: location,
+              requerimientos: requerimientos
+            },
+            classNames: [classNames]
+          });
+        }
+      } catch (error) {
+        console.error(`❌ Error procesando evento #${index + 1}:`, error);
       }
+    });
 
-      // Maneja fechas tipo "20250722T165116Z"
-      const dateMatch = dateStr.match(/^(\d{8}T\d{6})(Z)?$/);
-      if (dateMatch) {
-        const dateFormatted =
-          dateStr.slice(0, 4) +
-          "-" +
-          dateStr.slice(4, 6) +
-          "-" +
-          dateStr.slice(6, 8) +
-          "T" +
-          dateStr.slice(9, 11) +
-          ":" +
-          dateStr.slice(11, 13) +
-          ":" +
-          dateStr.slice(13, 15) +
-          (dateMatch[2] ? "Z" : "");
-        return new Date(dateFormatted);
-      }
+    debugEventCount(events);
+  }
 
-      // Si ya viene en ISO o con guiones
-      if (dateStr.includes("-")) {
-        return new Date(dateStr);
-      }
-
-      return null;
-    }
-
-
+  function cleanRequerimientos(text) {
+    return text
+      .replace(/\\,/g, ",")
+      .replace(/\\n/g, "\n")
+      .replace(/\n/g, "\n")
+      .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "")
+      .replace(/Unirse a la reunión ahora<.*?>/g, "")
+      .replace(/Id\. de reunión: \d+(?: \d+)+/g, "")
+      .replace(/Código de acceso: \w+/g, "")
+      .replace(/Para organizadores:.*?Opciones de la reunión/g, "")
+      .replace(/Join the meeting now<.*?>/g, "")
+      .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "")
+      .replace(/Passcode:\s*\w+/g, "")
+      .replace(/For organizers:.*?__/g, "")
+      .replace(/_{10,}/g, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/<.*?>/g, "")
+      .replace(/\S+@\S+\.\S+/g, "")
+      .replace(/No suele recibir correo electrónico de/g, "")
+      .replace(/Porqué es esto importante.*?/g, "")
+      .replace(/No sienta la ?obligación de.*?laboral\./g, "")
+      .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
+        if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
+          return "";
+        }
+        return match;
+      })
+      .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
+      .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "")
+      .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "")
+      .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
+      .replace(/Updated meeting details:.*?Location/g, "")
+      .replace(/Sent by Microsoft Exchange Online/g, "")
+      .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
+      .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
+      .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
+      .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
+      .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "")
+      .replace(/Requerimientos:\s*/g, "")
+      .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "")
+      .trim();
+  }
   </script>
 </body>
 
