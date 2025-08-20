@@ -10,11 +10,11 @@ const port = 3000;
 // Define your ICS URLs mapping
     const icsUrls = {
       "FHGCP DECANATO AUDITORIO 👤126":
-        "http://outlook.office365.com/owa/calendar/e857cbdab6ea47749bc06e0adc9dbb73@uc.cl/d0a1d7bd96104de8a2885a139f3f52a812222981494403014183/calendar.ics",
+        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0ad27548c1c4d17bd6de44bdcbaac51707574365493584925/calendar.ics",
       "FHGCP DECANATO SALA CONSEJO FACULTAD 👤25":
-        "http://outlook.office365.com/owa/calendar/f03c42313f964c819b4aecd10a62f81f@uc.cl/46e74d9c80a945e384f3971b525ea76e11052745610678742020/calendar.ics",
+        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/4cba199c6466429dbe5eeccacc4ee4cc1280787131942128037/calendar.ics",
       "FHGCP SALA CONSEJO CIENCIA POLITICA 👤12":
-        "http://outlook.office365.com/owa/calendar/bd828681f6ba4d2aa117aafc856c98f9@uc.cl/bce644202ac3415e9ef3d79469981e4f15364390778314373260/calendar.ics",
+        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/9ebb8e393e3c4b7ea826cec235e28fcc4163901858859466902/calendar.ics",
       "FHGCP SALA CONSEJO GEOGRAFIA 👤8":
         "http://outlook.office365.com/owa/calendar/4b0b3a0a1fc6489b87524b9b7ed9c687@uc.cl/8d66e4c06f5e4b4692af362963a98da03628685577008031525/calendar.ics",
       "FHGCP SALA CONSEJO HISTORIA 👤12":
