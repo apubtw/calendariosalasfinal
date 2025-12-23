@@ -1,4 +1,4 @@
-import { icsUrls, reservationConfig } from "./calendar-config.js";
+const { icsUrls, reservationConfig } = window.calendarConfig;
 let calendar;
 let currentEventSource = null;
 const parsedEventsCache = new Map();
