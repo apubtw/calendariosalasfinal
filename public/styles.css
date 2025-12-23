@@ -11,14 +11,19 @@
     }
 
     .fc-toolbar {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
         align-items: center;
     }
 
     .fc-toolbar-title {
         font-size: 18px;
-        margin-left: 20px;
+        min-width: 260px;
+        text-align: center;
+        margin: 0;
+        /* ← clave */
+        justify-self: center;
+        /* para grid */
     }
 
     #textCampo {
@@ -54,29 +59,32 @@
         cursor: pointer;
     }
 
-/* Estilo para eventos de todo el día (dentro de fc-event-main) */
-.fc-event-main.all-day-event {
-    color: black !important;  /* Cambiar el color de la letra a negro */
-    font-weight: bold;
-    font-size: 14px;
-  }
-  
-  /* Opcional: Si quieres ocultar la hora en los eventos de todo el día */
-  .fc-event-main.all-day-event .fc-event-time {
-    display: none;
-  }
+    /* Estilo para eventos de todo el día (dentro de fc-event-main) */
+    .fc-event-main.all-day-event {
+        color: black !important;
+        /* Cambiar el color de la letra a negro */
+        font-weight: bold;
+        font-size: 14px;
+    }
 
-  /* Estilo para eventos de todo el día */
-.fc-event-main.all-day-event {
-    color: black !important;  /* Asegurarse de que el color sea negro */
-  }
-  
-  /* Estilo para eventos normales */
-  .fc-event.fc-event-start.fc-event-end.fc-event-past.busy {
-    color: black !important;  /* Asegurarse de que el color sea negro */
-  }
-  
-  
+    /* Opcional: Si quieres ocultar la hora en los eventos de todo el día */
+    .fc-event-main.all-day-event .fc-event-time {
+        display: none;
+    }
+
+    /* Estilo para eventos de todo el día */
+    .fc-event-main.all-day-event {
+        color: black !important;
+        /* Asegurarse de que el color sea negro */
+    }
+
+    /* Estilo para eventos normales */
+    .fc-event.fc-event-start.fc-event-end.fc-event-past.busy {
+        color: black !important;
+        /* Asegurarse de que el color sea negro */
+    }
+
+
 
     select {
         width: auto;
@@ -158,3 +166,14 @@
         display: none;
         /* Ocultar la hora */
     }
+    .fc-toolbar-title::first-letter {
+        text-transform: uppercase;
+    }
+    .fc-daygrid-day {
+        cursor: pointer;
+    }
+    
+    .fc-daygrid-day:hover {
+        background-color: rgba(33, 150, 243, 0.08);
+    }
+    
