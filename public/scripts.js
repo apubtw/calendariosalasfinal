@@ -312,6 +312,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     calendar.render();
 
+    let lastHiddenAt = null;
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+            lastHiddenAt = Date.now();
+        }
+    
+        if (document.visibilityState === "visible") {
+            const selectedCalendar =
+                document.getElementById("calendarSelector")?.value;
+    
+            // Solo si estuvo fuera al menos 5 segundos
+            if (selectedCalendar && lastHiddenAt && Date.now() - lastHiddenAt > 2500) {
+                console.log("🔄 Volviendo tras reserva → forzando recarga ICS");
+    
+                // 🔥 INVALIDAR CACHE
+                icsMemoryCache.delete(selectedCalendar);
+                localStorage.removeItem(`ics:${selectedCalendar}`);
+                parsedEventsCache.delete(selectedCalendar);
+    
+                loadICS(selectedCalendar);
+            }
+        }
+    });
+    
     /* ======================
        TOOLBAR CUSTOM
     ====================== */
