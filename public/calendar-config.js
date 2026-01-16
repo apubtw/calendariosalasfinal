@@ -117,13 +117,13 @@ window.calendarConfig = {
       body: "Seleccione SOLO el equipamiento que necesita para la actividad."
     },
 
-    "FHGCP_SIMULACION_ICP_1_👤25": {
+    "FHGCP_SALA_SIMULACION_ICP_1_👤25": {
       email: "FHGCP-SIMULACION-ICP@uc.cl",
       location: "FHGCP-SIMULACION-ICP@uc.cl",
       defaultDurationMinutes: 60
     },
 
-    "FHGCP_SIMULACION_ICP_2_👤35": {
+    "FHGCP_SALA_SIMULACION_ICP_2_👤35": {
       email: "FHGCP-SIMULACION-ICP2@uc.cl",
       location: "FHGCP-SIMULACION-ICP2@uc.cl",
       defaultDurationMinutes: 60
