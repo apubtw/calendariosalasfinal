@@ -8,7 +8,7 @@ const icsUrls = {
     "FHGCP SALA CONSEJO GEOGRAFIA 👤8":
         "http://outlook.office365.com/owa/calendar/4b0b3a0a1fc6489b87524b9b7ed9c687@uc.cl/8d66e4c06f5e4b4692af362963a98da03628685577008031525/calendar.ics",
     "FHGCP SALA CONSEJO HISTORIA 👤12":
-        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/8f820fe3c7f44ed89a4cba45e25059cf5916755005309354082/calendar.ics",
+        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/74476b17ad384e368a6466754701f7c28223634168340257483/calendar.ics",
     "FHGCP SALA SIMULACION ICP 1 👤25":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/d8ad107659ff45688d71986a1ff1bdea4191855137671217506/calendar.ics",
     "FHGCP SALA SIMULACION ICP 2 👤35":
