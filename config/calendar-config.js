@@ -25,16 +25,14 @@ const icsUrls = {
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/120d13ec043e490b8165867b68b27e9118025989541280493575/calendar.ics",
     "FHGCP SALA USOS MULTIPLES 👤22":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/6c91932a0de541c3b05a8ef1c4764ba314100958707069186750/calendar.ics",
-    "FHGCP SEMINARIO 1 👤20":
+    "FHGCP SEMINARIO 1 👤35":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/06563fa029cf45eabbc316217c589c6710661106583453533547/calendar.ics",
     "FHGCP SEMINARIO 3 👤20":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/60cd401e6d924d04bc193e4bd51c99843051329826593012105/calendar.ics",
-    "FHGCP SEMINARIO 4 👤14":
+    "FHGCP SEMINARIO 4 👤24":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0838498c72642b5ba19f5b642e9864b4211631172097908883/calendar.ics",
     "FHGCP SEMINARIO 5 👤14":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/6802f81d14634476991b7a187d2a9d212612002183572204460/calendar.ics",
-    "FHGCP SEMINARIO 6 👤12":
-        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/3c06d828811349978116158df637d26f16742055330210283400/calendar.ics",
     "FHGCP SEMINARIO FACULTAD 👤41":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0b8f33c6b0944f8b0d2c309d20e7037812544073743176903/calendar.ics",
     "FHGCP TERRAZA 👤50":
@@ -122,7 +120,7 @@ const reservationConfig = {
         body: "Seleccione SOLO el equipamiento que necesita para la actividad."
     },
 
-    "FHGCP_SEMINARIO_1_👤20": {
+    "FHGCP_SEMINARIO_1_👤35": {
         email: "FHGCP-SEMINARIO1@uc.cl",
         location: "FHGCP-SEMINARIO1@uc.cl",
         defaultDurationMinutes: 60
@@ -134,7 +132,7 @@ const reservationConfig = {
         defaultDurationMinutes: 60
     },
 
-    "FHGCP_SEMINARIO_4_👤14": {
+    "FHGCP_SEMINARIO_4_👤24": {
         email: "FHGCP-SEMINARIO-4@uc.cl",
         location: "FHGCP-SEMINARIO-4@uc.cl",
         defaultDurationMinutes: 60
@@ -143,12 +141,6 @@ const reservationConfig = {
     "FHGCP_SEMINARIO_5_👤14": {
         email: "FHGCP-SEMINARIO-5@uc.cl",
         location: "FHGCP-SEMINARIO-5@uc.cl",
-        defaultDurationMinutes: 60
-    },
-
-    "FHGCP_SEMINARIO_6_👤12": {
-        email: "FHGCP-SEMINARIO-6@uc.cl",
-        location: "FHGCP-SEMINARIO-6@uc.cl",
         defaultDurationMinutes: 60
     },
 
