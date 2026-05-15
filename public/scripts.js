@@ -3,6 +3,8 @@ let calendar;
 let currentEventSource = null;
 const parsedEventsCache = new Map();
 let lastClickedDate = null;
+/** Evita aplicar resultados viejos si el usuario cambia de sala antes de terminar la carga. */
+let loadGeneration = 0;
 
 // =========================
 // Helpers globales
@@ -389,46 +391,53 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function loadICS(roomName) {
+    const myGen = ++loadGeneration;
+
     try {
-        // 1️⃣ Cache ICS (texto)
         const cachedICS = getCachedICS(roomName);
         if (cachedICS) {
-            // 2️⃣ Cache de eventos ya parseados
             const parsed = getCachedParsedEvents(roomName);
             if (parsed) {
-                displayEvents(parsed);
-            } else {
-                runIdle(() => parseICS(cachedICS, roomName));
+                displayEvents(parsed, myGen);
+                scrollToToday();
+                return;
             }
+            if (typeof FormPageLoader !== "undefined") {
+                FormPageLoader.show("Cargando calendario...");
+            }
+            runIdle(() => parseICS(cachedICS, roomName, myGen));
             scrollToToday();
             return;
         }
 
-        // 3️⃣ Fetch solo si no hay cache
+        if (typeof FormPageLoader !== "undefined") {
+            FormPageLoader.show("Cargando calendario...");
+        }
+
         const response = await fetch(`/ics/${roomName}`);
         if (!response.ok) throw new Error("Network error");
 
         const data = await response.text();
-
-        // 4️⃣ Guardar cache ICS
         setCachedICS(roomName, data);
 
-        // 5️⃣ Parseo async + cache de eventos
-        runIdle(() => parseICS(data, roomName));
-
+        runIdle(() => parseICS(data, roomName, myGen));
         scrollToToday();
     } catch (error) {
         console.error("❌ Error cargando ICS:", error);
+        if (typeof FormPageLoader !== "undefined" && myGen === loadGeneration) {
+            FormPageLoader.hide();
+        }
     }
 }
 
-function parseICS(data, roomName) {
+function parseICS(data, roomName, completedGen) {
     const events = [];
-    const lines = data.split(/\r?\n/);
-    let currentEvent = null;
-    let previousKey = null;
+    try {
+        const lines = data.split(/\r?\n/);
+        let currentEvent = null;
+        let previousKey = null;
 
-    lines.forEach((line) => {
+        lines.forEach((line) => {
         if (line.startsWith(" ") && currentEvent && previousKey) {
             // Continuación de línea (folding)
             currentEvent[previousKey] += line.trim();
@@ -482,13 +491,17 @@ function parseICS(data, roomName) {
                 }
             }
         }
-    });
+        });
 
-    // 🔥 Cache de eventos YA parseados
-    setCachedParsedEvents(roomName, events);
+        setCachedParsedEvents(roomName, events);
 
-    // Render directo
-    displayEvents(events);
+        displayEvents(events, completedGen);
+    } catch (err) {
+        console.error("❌ Error parseando ICS:", err);
+        if (typeof FormPageLoader !== "undefined" && completedGen === loadGeneration) {
+            FormPageLoader.hide();
+        }
+    }
 }
 
 function generateRecurrenceEvents(event) {
@@ -648,7 +661,11 @@ function mapICSToFullCalendarEvents(events) {
     return fcEvents;
 }
 
-function displayEvents(events) {
+function displayEvents(events, completedGen) {
+    if (completedGen !== loadGeneration) {
+        return;
+    }
+
     const fcEvents = mapICSToFullCalendarEvents(events);
 
     if (currentEventSource) {
@@ -659,6 +676,10 @@ function displayEvents(events) {
     currentEventSource = calendar.addEventSource(fcEvents);
 
     debugEventCount(events);
+
+    if (typeof FormPageLoader !== "undefined") {
+        FormPageLoader.hide();
+    }
 }
 
 function cleanRequerimientos(text) {
