@@ -148,9 +148,9 @@ window.calendarConfig = {
     "FHGCP SALA CONSEJO HISTORIA 👤12":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/8f820fe3c7f44ed89a4cba45e25059cf5916755005309354082/calendar.ics",
     "FHGCP SALA SIMULACION ICP 1 👤25":
-      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/d8ad107659ff45688d71986a1ff1bdea4191855137671217506/calendar.ics",
+      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/3366a8efa2a842d8b87829620b7fc81518239111301311638309/calendar.ics",
     "FHGCP SALA SIMULACION ICP 2 👤35":
-      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/6d8e954e24db4a99a848d49a714497e913370319527010283519/calendar.ics",
+      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/5565292b0ef34806b9728fcc0d746ea96634441880341125555/calendar.ics",
     "FHGCP SALA DOCTORADO CIENCIA POLITICA 👤12":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/5c88f558df38410f9daea0d77aa71d529970456336550474037/calendar.ics",
     "FHGCP SALA DOCTORADO GEOGRAFIA 👤10":
