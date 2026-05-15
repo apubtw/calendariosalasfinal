@@ -26,9 +26,11 @@ const axiosBase = {
     maxRedirects: MAX_REDIRECTS,
     validateStatus: () => true,
     headers: {
-        Accept: "text/calendar,*/*;q=0.8",
+        Accept: "text/calendar,text/plain,*/*;q=0.8",
+        "Accept-Language": "es-CL,es;q=0.9,en;q=0.7",
         "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        Referer: "https://outlook.office365.com/owa/",
     },
 };
 
