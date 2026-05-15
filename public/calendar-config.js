@@ -138,7 +138,7 @@ window.calendarConfig = {
   },
   icsUrls: {
     "FHGCP DECANATO AUDITORIO 👤126":
-      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/8440631c78e042eda18353398b5f4b1914751582207852092512/calendar.ics",
+      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/d5071e2d52634cf1baf86df1729e98d63332810721219706391/calendar.ics",
     "FHGCP DECANATO SALA CONSEJO FACULTAD 👤25":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/4cba199c6466429dbe5eeccacc4ee4cc1280787131942128037/calendar.ics",
     "FHGCP SALA CONSEJO CIENCIA POLITICA 👤12":
