@@ -1,6 +1,6 @@
 const icsUrls = {
     "FHGCP DECANATO AUDITORIO 👤126":
-        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0ad27548c1c4d17bd6de44bdcbaac51707574365493584925/calendar.ics",
+        "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/8440631c78e042eda18353398b5f4b1914751582207852092512/calendar.ics",
     "FHGCP DECANATO SALA CONSEJO FACULTAD 👤25":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/4cba199c6466429dbe5eeccacc4ee4cc1280787131942128037/calendar.ics",
     "FHGCP SALA CONSEJO CIENCIA POLITICA 👤12":

@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "check-ics": "node scripts/check-ics-health.js",
+    "check-ics:server": "node scripts/check-ics-health.js --via-server"
+  },
   "dependencies": {
     "@fullcalendar/rrule": "^6.1.15",
     "axios": "^1.7.7",
