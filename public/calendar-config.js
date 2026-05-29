@@ -86,6 +86,12 @@ window.calendarConfig = {
       defaultDurationMinutes: 60
     },
 
+    "FHGCP_SEMINARIO_2_👤22": {
+      email: "FHGCP-SALA-SEMINARIO2@uc.cl",
+      location: "FHGCP-SALA-SEMINARIO2@uc.cl",
+      defaultDurationMinutes: 60
+    },
+
     "FHGCP_SEMINARIO_3_👤20": {
       email: "FHGCP-SEMINARIO-3@uc.cl",
       location: "FHGCP-SEMINARIO-3@uc.cl",
@@ -150,7 +156,7 @@ window.calendarConfig = {
     "FHGCP SALA DOCTORADO GEOGRAFIA 👤10":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/f0224482db574219ad94fe9ae52c6ca04585519317557358076/calendar.ics",
     "FHGCP_PASILLO_2DO_PISO_👤40":
-      "http://outlook.office365.com/owa/calendar/24e8cbb9d1424f5d81f3c5d20f9953fd@uc.cl/5c8857a5528e4661aa906d6bc180eb4a6372096918242644660/calendar.ics",
+      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/5ecc8d4acee64c179b8a85d458e3408012639778347387731497/calendar.ics",
     "FHGCP SALA POSTGRADO HISTORIA 👤10":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/c3b48916586640eab1e50da622d099a418067958400765017998/calendar.ics",
     "FHGCP SALA REUNIONES A 7 👤10":
@@ -159,6 +165,8 @@ window.calendarConfig = {
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/6c91932a0de541c3b05a8ef1c4764ba314100958707069186750/calendar.ics",
     "FHGCP SEMINARIO 1 👤35":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/06563fa029cf45eabbc316217c589c6710661106583453533547/calendar.ics",
+    "FHGCP SEMINARIO 2 👤22":
+      "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/d7ee7f7b5cec4227b577798ffcee6c987817381290726301690/calendar.ics",
     "FHGCP SEMINARIO 3 👤20":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/60cd401e6d924d04bc193e4bd51c99843051329826593012105/calendar.ics",
     "FHGCP SEMINARIO 4 👤24":
