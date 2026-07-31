@@ -35,6 +35,8 @@ const icsUrls = {
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0838498c72642b5ba19f5b642e9864b4211631172097908883/calendar.ics",
     "FHGCP SEMINARIO 5 👤14":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/6802f81d14634476991b7a187d2a9d212612002183572204460/calendar.ics",
+    "FHGCP SEMINARIO 6 👤5":
+        "http://outlook.office365.com/owa/calendar/6e8203d5b1b2416ca5c274739141bc17@uc.cl/a9da0dfec3334d9f90261cb92cd28e127623096830484021464/calendar.ics",
     "FHGCP SEMINARIO FACULTAD 👤41":
         "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0b8f33c6b0944f8b0d2c309d20e7037812544073743176903/calendar.ics",
     "FHGCP TERRAZA 👤50":
@@ -149,6 +151,12 @@ const reservationConfig = {
     "FHGCP_SEMINARIO_5_👤14": {
         email: "FHGCP-SEMINARIO-5@uc.cl",
         location: "FHGCP-SEMINARIO-5@uc.cl",
+        defaultDurationMinutes: 60
+    },
+
+    "FHGCP_SEMINARIO_6_👤5": {
+        email: "FHGCP-SEMINARIO-6@uc.cl",
+        location: "FHGCP-SEMINARIO-6@uc.cl",
         defaultDurationMinutes: 60
     },
 
