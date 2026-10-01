@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "check-ics": "node scripts/check-ics-health.js",
     "check-ics:server": "node scripts/check-ics-health.js --via-server"
