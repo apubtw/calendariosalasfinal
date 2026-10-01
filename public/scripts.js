@@ -1,4 +1,9 @@
-const { icsUrls, reservationConfig } = window.calendarConfig;
+const { icsUrls, reservationConfig, comingSoonRooms = [] } = window.calendarConfig;
+const comingSoonSet = new Set(comingSoonRooms);
+
+function isComingSoonRoom(roomName) {
+    return comingSoonSet.has(roomName);
+}
 let calendar;
 let currentEventSource = null;
 const parsedEventsCache = new Map();
@@ -358,6 +363,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedCalendar = select.value;
         if (!selectedCalendar) return;
 
+        if (isComingSoonRoom(selectedCalendar)) {
+            alert("Esta sala aún no está habilitada. Próximamente.");
+            return;
+        }
+
         const roomKey = selectedCalendar.replace(/ /g, "_").toUpperCase();
 
         const link = buildOutlookReservationLink({ roomKey });
@@ -365,13 +375,25 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     select.addEventListener("change", () => {
-        if (select.value) loadICS(select.value);
+        if (!select.value) return;
+        if (isComingSoonRoom(select.value)) {
+            alert("Esta sala aún no está habilitada. Próximamente.");
+            return;
+        }
+        loadICS(select.value);
     });
 
     Object.keys(icsUrls).forEach((name) => {
         const option = document.createElement("option");
         option.value = name;
-        option.textContent = name.replace(/_/g, " ");
+        const label = name.replace(/_/g, " ");
+        if (isComingSoonRoom(name)) {
+            option.textContent = `${label} — próximamente`;
+            option.disabled = true;
+            option.title = "Esta sala aún no está habilitada";
+        } else {
+            option.textContent = label;
+        }
         select.appendChild(option);
     });
 
@@ -391,6 +413,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function loadICS(roomName) {
+    if (isComingSoonRoom(roomName)) {
+        console.warn("Sala no habilitada (próximamente):", roomName);
+        return;
+    }
+
     const myGen = ++loadGeneration;
 
     try {

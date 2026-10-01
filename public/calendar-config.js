@@ -185,5 +185,9 @@ window.calendarConfig = {
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/a0b8f33c6b0944f8b0d2c309d20e7037812544073743176903/calendar.ics",
     "FHGCP TERRAZA 👤50":
       "https://outlook.office365.com/owa/calendar/1b3e56414b82479fa4b82073497d1e38@uc.cl/f3008c0a5f944aa8b35933dae17810dc9850426923127246455/calendar.ics",
-  }
+  },
+  /** Salas visibles en el selector, pero aún no habilitadas para uso. */
+  comingSoonRooms: [
+    "FHGCP SEMINARIO 2 👤22"
+  ]
 }

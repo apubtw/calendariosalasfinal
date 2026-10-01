@@ -186,7 +186,13 @@ const reservationConfig = {
     }
 };
 
+/** Salas visibles en el selector, pero aún no habilitadas para uso. */
+const comingSoonRooms = [
+    "FHGCP SEMINARIO 2 👤22"
+];
+
 module.exports = {
     icsUrls,
-    reservationConfig
+    reservationConfig,
+    comingSoonRooms
 };
