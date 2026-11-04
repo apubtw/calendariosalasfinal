@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const morgan = require("morgan"); // Logging middleware
@@ -7,13 +8,32 @@ const { icsUrls } = require("./config/calendar-config");
 
 const app = express();
 const port = 3000;
+const indexTemplate = fs.readFileSync(
+  path.join(__dirname, "public", "index.html"),
+  "utf8"
+);
+
+function appVersion() {
+  return (
+    process.env.VERCEL_DEPLOYMENT_ID ||
+    process.env.VERCEL_GIT_COMMIT_SHA ||
+    "local"
+  );
+}
 
 app.use(morgan("combined")); // Use morgan for logging
-app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/version", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({ version: appVersion() });
+});
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.set("Cache-Control", "no-store");
+  res.type("html").send(indexTemplate.replaceAll("__APP_VERSION__", appVersion()));
 });
+
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
 /** Outlook/OWA a veces exige un perfil de petición parecido al navegador (evitar 400). */
 const icsAxiosConfig = {

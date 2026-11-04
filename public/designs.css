@@ -188,3 +188,45 @@ html[data-design="institucional"] .modal-content h2 {
     font-family: "Source Serif 4", Georgia, serif;
     color: #0f2c5b;
 }
+
+html[data-design="institucional"] .version-toast {
+    position: fixed;
+    z-index: 10001;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: min(420px, calc(100vw - 32px));
+    margin: 0;
+    padding: 14px 16px;
+    background: #0f2c5b;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 44, 91, 0.28);
+    font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+html[data-design="institucional"] .version-toast p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+html[data-design="institucional"] .version-toast button {
+    flex: none;
+    height: 36px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 8px;
+    background: #e4b423;
+    color: #0f2c5b;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+html[data-design="institucional"] .version-toast button:hover {
+    background: #f0c84a;
+}
