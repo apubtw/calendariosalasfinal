@@ -13,6 +13,7 @@ const indexTemplate = fs.readFileSync(
   "utf8"
 );
 
+// Identificador del deploy. La página abierta lo compara con /version para avisar que hay que recargar.
 function appVersion() {
   return (
     process.env.VERCEL_DEPLOYMENT_ID ||
