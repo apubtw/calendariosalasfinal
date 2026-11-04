@@ -53,8 +53,7 @@ const reservationConfig = {
     "FHGCP_DECANATO_AUDITORIO_👤126": {
         email: "FHGCP-DECANATO-AUDITORIO@uc.cl",
         location: "FHGCP-DECANATO-AUDITORIO@uc.cl",
-        defaultDurationMinutes: 60,
-        body: "Seleccione SOLO el equipamiento que necesita para la actividad."
+        defaultDurationMinutes: 60
     },
 
     "FHGCP_DECANATO_SALA_CONSEJO_FACULTAD_👤25": {
@@ -120,8 +119,7 @@ const reservationConfig = {
     "FHGCP_SALA_USOS_MULTIPLES_👤22": {
         email: "FHGCP-SALA-USOS-MULTIPLES@uc.cl",
         location: "FHGCP-SALA-USOS-MULTIPLES@uc.cl",
-        defaultDurationMinutes: 60,
-        body: "Seleccione SOLO el equipamiento que necesita para la actividad."
+        defaultDurationMinutes: 60
     },
 
     "FHGCP_SEMINARIO_1_👤35": {
@@ -163,8 +161,7 @@ const reservationConfig = {
     "FHGCP_SEMINARIO_FACULTAD_👤41": {
         email: "FHGCP-SEMINARIO-FACULTAD@uc.cl",
         location: "FHGCP-SEMINARIO-FACULTAD@uc.cl",
-        defaultDurationMinutes: 60,
-        body: "Seleccione SOLO el equipamiento que necesita para la actividad."
+        defaultDurationMinutes: 60
     },
 
     "FHGCP_SIMULACION_ICP_1_👤25": {

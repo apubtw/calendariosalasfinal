@@ -26,6 +26,29 @@ function fmtFechaHora(d) {
     return d.toLocaleString("es-ES", { dateStyle: "full", timeStyle: "short" });
 }
 
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+/** El ICS escapa coma, punto y coma, salto de línea y barra invertida. */
+function unescapeICS(text) {
+    return String(text ?? "").replace(/\\(\\|n|N|,|;)/g, (_, ch) => {
+        if (ch === "n" || ch === "N") return "\n";
+        return ch === "\\" ? "\\" : ch;
+    });
+}
+
+/** Outlook marca los reenvíos con "RV:" al inicio del asunto. */
+function stripLeadingRv(text) {
+    const original = unescapeICS(text).trim();
+    const cleaned = original.replace(/^(?:RV:\s*)+/i, "").trim();
+    return cleaned || original;
+}
+
 function buildOutlookReservationLink({
     roomKey,
     start,
@@ -53,10 +76,6 @@ function buildOutlookReservationLink({
     } else if (start instanceof Date && cfg.defaultDurationMinutes) {
         const autoEnd = new Date(start.getTime() + cfg.defaultDurationMinutes * 60000);
         params.set("enddt", autoEnd.toISOString());
-    }
-
-    if (cfg.body) {
-        params.set("body", cfg.body);
     }
 
     return `${base}?${params.toString()}`;
@@ -233,9 +252,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modalLocation").textContent =
                 event.extendedProps?.location || "Sin ubicación";
 
-            document.getElementById("modalRequirements").textContent =
-                event.extendedProps?.requerimientos || "Sin requerimientos";
-
             modal.style.display = "block";
         },
 
@@ -248,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const end = ev.end;
 
             if (!isValidDate(start)) {
-                return { html: `<div style="color:black"><br>${ev.title}</div>` };
+                return { html: `<div class="event-chip"><span class="event-chip__title">${escapeHtml(ev.title)}</span></div>` };
             }
 
             const isAllDay =
@@ -269,8 +285,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return {
                 html: `
-                    <div style="color:black;font-size:14px;">
-                        <br>${time}${timeEnd}<br>${ev.title}
+                    <div class="event-chip">
+                        <span class="event-chip__time">${escapeHtml(time + timeEnd)}</span>
+                        <span class="event-chip__title">${escapeHtml(ev.title)}</span>
                     </div>
                 `
             };
@@ -646,12 +663,8 @@ function mapICSToFullCalendarEvents(events) {
 
             if (!isValidDate(start)) return;
 
-            const description = event["SUMMARY"] || "Sin descripción";
-            const location = event["LOCATION"] || "Sin ubicación";
-
-            const requerimientos = event["DESCRIPTION"]
-                ? cleanRequerimientos(event["DESCRIPTION"])
-                : "Sin requerimientos";
+            const description = stripLeadingRv(event["SUMMARY"] || "Sin descripción");
+            const location = unescapeICS(event["LOCATION"] || "Sin ubicación").trim() || "Sin ubicación";
 
             const busyStatus = event["X-MICROSOFT-CDO-BUSYSTATUS"] || "BUSY";
             const classNames = busyStatus === "TENTATIVE" ? ["tentative"] : ["busy"];
@@ -676,8 +689,7 @@ function mapICSToFullCalendarEvents(events) {
                 classNames,
                 extendedProps: {
                     description,
-                    location,
-                    requerimientos
+                    location
                 }
             });
         } catch (err) {
@@ -707,47 +719,4 @@ function displayEvents(events, completedGen) {
     if (typeof FormPageLoader !== "undefined") {
         FormPageLoader.hide();
     }
-}
-
-function cleanRequerimientos(text) {
-    return text
-        .replace(/\\,/g, ",")
-        .replace(/\\n/g, "\n")
-        .replace(/\n/g, "\n")
-        .replace(/Microsoft Teams.*?Need help\?.*?(\s|<)/g, "")
-        .replace(/Unirse a la reunión ahora<.*?>/g, "")
-        .replace(/Id\. de reunión: \d+(?: \d+)+/g, "")
-        .replace(/Código de acceso: \w+/g, "")
-        .replace(/Para organizadores:.*?Opciones de la reunión/g, "")
-        .replace(/Join the meeting now<.*?>/g, "")
-        .replace(/Meeting ID:.*?Passcode:.*?\s*/g, "")
-        .replace(/Passcode:\s*\w+/g, "")
-        .replace(/For organizers:.*?__/g, "")
-        .replace(/_{10,}/g, "")
-        .replace(/\s{2,}/g, " ")
-        .replace(/<.*?>/g, "")
-        .replace(/\S+@\S+\.\S+/g, "")
-        .replace(/No suele recibir correo electrónico de/g, "")
-        .replace(/Porqué es esto importante.*?/g, "")
-        .replace(/No sienta la ?obligación de.*?laboral\./g, "")
-        .replace(/\b[a-zA-Z0-9]{6,}\b/g, function (match) {
-            if (/Passcode:/.test(text.substring(0, text.indexOf(match)))) {
-                return "";
-            }
-            return match;
-        })
-        .replace(/Sent by Microsoft 365.*?Your meeting was found to be out of date and has been automatically updated/g, "")
-        .replace(/https:\/\/aka\.ms\/JoinTeamsMeeting\?omkt=es-ES>.*?Meeting/g, "")
-        .replace(/ID: \d+(?: \d+)+ For : Meeting/g, "")
-        .replace(/No sientala obligación de contestar este mail fuera de horario laboral\./g, "")
-        .replace(/Updated meeting details:.*?Location/g, "")
-        .replace(/Sent by Microsoft Exchange Online/g, "")
-        .replace(/Se le ha reenviado esta solicitud de recurso en directiva para que la apruebe\. Se le ha reenviado esta solicitud para que la apruebe porque el organizador no tiene permiso para reservar este recurso\./g, "")
-        .replace(/Nosienta la obligación de contestar este mail fuera de horario laboral./g, "")
-        .replace(/Microsoft Teams ¿Necesita ayuda\?/g, "")
-        .replace(/Sentby Microsoft 365 Your meeting was found to be out of date and has beenautomatically updated.\?/g, "")
-        .replace(/Sent\s?by\s?Microsoft\s?365.*?automatically\s?updated\./g, "")
-        .replace(/Requerimientos:\s*/g, "")
-        .replace(/"Id\. de reunión: \d+(?: \d+)+ Código de acceso: \w+"/g, "")
-        .trim();
 }

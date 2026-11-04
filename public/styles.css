@@ -45,6 +45,17 @@
         text-overflow: ellipsis;
     }
 
+    .event-chip {
+        color: black;
+        font-size: 14px;
+        line-height: 1.25;
+    }
+
+    .event-chip__time,
+    .event-chip__title {
+        display: block;
+    }
+
     .fc-event {
         padding: 5px;
         border-radius: 5px;
