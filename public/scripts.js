@@ -160,9 +160,24 @@ function setCachedICS(room, data) {
 function scrollToToday() {
     setTimeout(() => {
         const todayCell = document.querySelector(".fc-daygrid-day.fc-day-today");
-        if (todayCell) {
-            todayCell.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+        if (!todayCell) return;
+
+        // Scroll solo dentro del scroller de FullCalendar; evita mover el body.
+        const scroller = todayCell.closest(".fc-scroller");
+        if (!scroller) return;
+
+        const scrollerRect = scroller.getBoundingClientRect();
+        const cellRect = todayCell.getBoundingClientRect();
+        const delta =
+            cellRect.top -
+            scrollerRect.top -
+            scrollerRect.height / 2 +
+            cellRect.height / 2;
+
+        scroller.scrollTo({
+            top: scroller.scrollTop + delta,
+            behavior: "smooth",
+        });
     }, 50);
 }
 
@@ -187,35 +202,39 @@ document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("eventModal");
     const modalClose = document.querySelector(".close");
 
-    function isMobileDevice() {
-        return /Mobi|Android/i.test(navigator.userAgent);
+    const compactLayoutQuery = window.matchMedia("(max-width: 768px)");
+
+    function isCompactLayout() {
+        return compactLayoutQuery.matches;
     }
 
-    let headerToolbar, footerToolbar;
+    function getToolbarOptions(compact) {
+        if (compact) {
+            return {
+                headerToolbar: {
+                    left: "dayGridMonth,dayGridWeek,dayGridDay",
+                    center: "",
+                    right: "",
+                },
+                footerToolbar: {
+                    left: "title",
+                    center: "prev,today,next",
+                    right: "",
+                },
+            };
+        }
 
-    if (isMobileDevice()) {
-        headerToolbar = {
-            left: "dayGridMonth,dayGridWeek,dayGridDay",
-            center: "",
-            right: "",
-        };
-        footerToolbar = {
-            left: "title",
-            center: "prev,today,next",
-            right: "",
-        };
-    } else {
-        headerToolbar = {
-            left: "dayGridMonth,dayGridWeek,dayGridDay",
-            center: "title,prev,today,next",
-            right: "",
-        };
-        footerToolbar = {
-            left: "",
-            center: "",
-            right: "",
+        return {
+            headerToolbar: {
+                left: "dayGridMonth,dayGridWeek,dayGridDay",
+                center: "title,prev,today,next",
+                right: "",
+            },
+            footerToolbar: false,
         };
     }
+
+    const { headerToolbar, footerToolbar } = getToolbarOptions(isCompactLayout());
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         firstDay: 1,
@@ -223,6 +242,9 @@ document.addEventListener("DOMContentLoaded", function () {
         locale: "es",
         headerToolbar,
         footerToolbar,
+        dayMaxEvents: isCompactLayout() ? 3 : true,
+        moreLinkText: "más",
+        height: "parent",
         buttonText: {
             today: "Hoy",
             month: "Mes",
@@ -262,9 +284,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const ev = arg.event;
             const start = ev.start;
             const end = ev.end;
+            const compactMonth =
+                isCompactLayout() && arg.view?.type === "dayGridMonth";
 
             if (!isValidDate(start)) {
-                return { html: `<div class="event-chip"><span class="event-chip__title">${escapeHtml(ev.title)}</span></div>` };
+                return {
+                    html: `<div class="event-chip"><span class="event-chip__title">${escapeHtml(
+                        ev.title
+                    )}</span></div>`,
+                };
             }
 
             const isAllDay =
@@ -282,6 +310,16 @@ document.addEventListener("DOMContentLoaded", function () {
             const time = isAllDay ? "Todo el Día" : fmtHora(start);
             const timeEnd =
                 !isAllDay && isValidDate(end) ? ` - ${fmtHora(end)}` : "";
+
+            // En mes móvil: solo hora de inicio; todo el día → etiqueta fija.
+            if (compactMonth) {
+                const label = isAllDay ? "Día" : time;
+                return {
+                    html: `<div class="event-chip event-chip--compact"><span class="event-chip__time">${escapeHtml(
+                        label
+                    )}</span></div>`,
+                };
+            }
 
             return {
                 html: `
@@ -364,8 +402,6 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ======================
        TOOLBAR CUSTOM
     ====================== */
-    const toolbar = document.querySelector(".fc-toolbar-chunk:nth-child(3)");
-
     const texto = document.createElement("span");
     texto.id = "textCampo";
     texto.textContent = "Sala:";
@@ -375,6 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const reservationButton = document.createElement("button");
     reservationButton.id = "reservationButton";
+    reservationButton.type = "button";
     reservationButton.textContent = "RESERVA";
     reservationButton.onclick = () => {
         const selectedCalendar = select.value;
@@ -414,9 +451,37 @@ document.addEventListener("DOMContentLoaded", function () {
         select.appendChild(option);
     });
 
-    toolbar.appendChild(texto);
-    toolbar.appendChild(select);
-    toolbar.appendChild(reservationButton);
+    function mountRoomControls() {
+        const header = calendarEl.querySelector(".fc-header-toolbar");
+        if (!header || header.contains(select)) return;
+
+        // Preferir el último chunk del header; si no hay, el propio header.
+        const chunks = header.querySelectorAll(".fc-toolbar-chunk");
+        const host = chunks[chunks.length - 1] || header;
+        host.appendChild(texto);
+        host.appendChild(select);
+        host.appendChild(reservationButton);
+    }
+
+    function applyCompactLayout(compact) {
+        const { headerToolbar: nextHeader, footerToolbar: nextFooter } =
+            getToolbarOptions(compact);
+        calendar.setOption("headerToolbar", nextHeader);
+        calendar.setOption("footerToolbar", nextFooter);
+        calendar.setOption("dayMaxEvents", compact ? 3 : true);
+        calendar.setOption("height", "parent");
+        mountRoomControls();
+        calendar.updateSize();
+    }
+
+    mountRoomControls();
+
+    const onCompactChange = (event) => applyCompactLayout(event.matches);
+    if (typeof compactLayoutQuery.addEventListener === "function") {
+        compactLayoutQuery.addEventListener("change", onCompactChange);
+    } else if (typeof compactLayoutQuery.addListener === "function") {
+        compactLayoutQuery.addListener(onCompactChange);
+    }
 
     loadICS(Object.keys(icsUrls)[0]);
 

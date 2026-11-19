@@ -18,12 +18,18 @@
 
     .fc-toolbar-title {
         font-size: 18px;
-        min-width: 260px;
+        min-width: 0;
         text-align: center;
         margin: 0;
         /* ← clave */
         justify-self: center;
         /* para grid */
+    }
+
+    @media (min-width: 769px) {
+        .fc-toolbar-title {
+            min-width: 12.5rem;
+        }
     }
 
     #textCampo {
@@ -149,6 +155,27 @@
         width: 80%;
         max-width: 600px;
         border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+        .modal {
+            padding-top: 40px;
+            padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+        }
+
+        .modal-content {
+            width: calc(100% - 24px);
+            max-width: none;
+        }
+
+        #calendar {
+            height: calc(100dvh - 12px);
+        }
+
+        body {
+            overflow-wrap: break-word;
+        }
     }
 
     .close {
