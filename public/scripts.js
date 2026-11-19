@@ -242,8 +242,8 @@ document.addEventListener("DOMContentLoaded", function () {
         locale: "es",
         headerToolbar,
         footerToolbar,
-        dayMaxEvents: isCompactLayout() ? 3 : true,
-        moreLinkText: "más",
+        // Mostrar todos los eventos del día (sin enlace "+N más").
+        dayMaxEvents: false,
         height: "parent",
         buttonText: {
             today: "Hoy",
@@ -338,8 +338,12 @@ document.addEventListener("DOMContentLoaded", function () {
             info.el.style.cursor = "pointer";
 
             info.el.addEventListener("click", (ev) => {
-                // ⛔️ Si el click viene desde un evento → NO reservar
-                if (ev.target.closest(".fc-event")) {
+                // Evento, "+N más" o popover → no abrir reserva.
+                if (
+                    ev.target.closest(
+                        ".fc-event, .fc-more-link, .fc-daygrid-more-link, .fc-popover, .fc-more-popover"
+                    )
+                ) {
                     return;
                 }
 
@@ -468,7 +472,7 @@ document.addEventListener("DOMContentLoaded", function () {
             getToolbarOptions(compact);
         calendar.setOption("headerToolbar", nextHeader);
         calendar.setOption("footerToolbar", nextFooter);
-        calendar.setOption("dayMaxEvents", compact ? 3 : true);
+        calendar.setOption("dayMaxEvents", false);
         calendar.setOption("height", "parent");
         mountRoomControls();
         calendar.updateSize();
